@@ -72,7 +72,10 @@ export async function getTeams(): Promise<BDLTeam[]> {
 }
 
 /** Active players for a team (paginated; we just take the first page — fine
- *  for showing a roster snapshot). */
+ *  for showing a roster snapshot).
+ *
+ *  NOTE: Requires the paid BDL "ALL-STAR" tier. Free tier users will hit
+ *  Unauthorized — TeamMode no longer uses this. */
 export async function getRoster(teamId: number, perPage = 25): Promise<BDLPlayer[]> {
   const out = await bdl<BDLList<BDLPlayer>>('players/active', {
     'team_ids': [teamId],
@@ -81,7 +84,8 @@ export async function getRoster(teamId: number, perPage = 25): Promise<BDLPlayer
   return out.data;
 }
 
-/** Season averages for a list of players in a given season. */
+/** Season averages for a list of players in a given season.
+ *  Also paid-tier — kept for future upgrade. */
 export async function getSeasonAverages(
   playerIds: number[],
   season: number,
@@ -92,6 +96,46 @@ export async function getSeasonAverages(
     player_ids: playerIds,
   });
   return out.data;
+}
+
+// ─── Games (free tier) ───────────────────────────────────────────────
+export type BDLGame = {
+  id: number;
+  date: string;            // YYYY-MM-DD
+  season: number;
+  status: string;
+  period: number;
+  time: string;
+  postseason: boolean;
+  home_team_score: number;
+  visitor_team_score: number;
+  home_team: BDLTeam;
+  visitor_team: BDLTeam;
+};
+
+/** Recent games for a team in a given season. Most-recent first. */
+export async function getGames(teamId: number, season: number, perPage = 12): Promise<BDLGame[]> {
+  const out = await bdl<BDLList<BDLGame>>('games', {
+    'team_ids': [teamId],
+    'seasons': [season],
+    'per_page': perPage,
+  });
+  // BDL returns oldest-first; sort newest-first so the UI shows recent games up top.
+  return [...out.data].sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/** Win-loss record from a games list (relative to the given team). */
+export function computeRecord(games: BDLGame[], teamId: number): { wins: number; losses: number } {
+  let wins = 0, losses = 0;
+  for (const g of games) {
+    if (g.status !== 'Final') continue;
+    const isHome = g.home_team.id === teamId;
+    const teamScore = isHome ? g.home_team_score : g.visitor_team_score;
+    const oppScore  = isHome ? g.visitor_team_score : g.home_team_score;
+    if (teamScore > oppScore) wins++;
+    else if (teamScore < oppScore) losses++;
+  }
+  return { wins, losses };
 }
 
 /** Resolve the most recent season we should query for. BDL exposes seasons

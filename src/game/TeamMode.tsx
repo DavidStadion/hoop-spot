@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import {
-  getTeams, getRoster, getSeasonAverages, currentBDLSeason,
-  type BDLTeam, type BDLPlayer, type BDLSeasonAverages,
+  getTeams, getGames, computeRecord, currentBDLSeason,
+  type BDLTeam, type BDLGame,
 } from '../lib/bdl';
 import { getCrest } from '../data/assets';
 import styles from './TeamMode.module.css';
@@ -107,48 +107,31 @@ function TeamGrid({ teams, onPick }: { teams: Loadable<BDLTeam[]>; onPick: (t: B
   );
 }
 
-// ─── Team detail ────────────────────────────────────────────────────
+// ─── Team detail (recent games) ─────────────────────────────────────
 function TeamDetail({ team }: { team: BDLTeam }) {
-  const [roster, setRoster] = useState<Loadable<BDLPlayer[]>>({ state: 'loading' });
-  const [averages, setAverages] = useState<Loadable<BDLSeasonAverages[]>>({ state: 'loading' });
+  const [games, setGames] = useState<Loadable<BDLGame[]>>({ state: 'loading' });
   const season = currentBDLSeason();
   const crest = getCrest(team.full_name) ?? getCrest(team.name);
 
   useEffect(() => {
     let cancelled = false;
-    setRoster({ state: 'loading' });
-    setAverages({ state: 'loading' });
-    getRoster(team.id)
-      .then(async data => {
-        if (cancelled) return;
-        setRoster({ state: 'ok', data });
-        try {
-          const avg = await getSeasonAverages(data.map(p => p.id), season);
-          if (!cancelled) setAverages({ state: 'ok', data: avg });
-        } catch (err) {
-          if (!cancelled) setAverages({ state: 'error', message: (err as Error).message });
-        }
-      })
-      .catch(err => { if (!cancelled) setRoster({ state: 'error', message: err.message }); });
+    setGames({ state: 'loading' });
+    getGames(team.id, season, 12)
+      .then(data => { if (!cancelled) setGames({ state: 'ok', data }); })
+      .catch(err => { if (!cancelled) setGames({ state: 'error', message: err.message }); });
     return () => { cancelled = true; };
   }, [team.id, season]);
 
-  if (roster.state !== 'ok') {
-    if (roster.state === 'error') {
-      return <div className={styles.errorBox}><strong>Couldn't load roster.</strong><p>{roster.message}</p></div>;
+  if (games.state !== 'ok') {
+    if (games.state === 'error') {
+      return <div className={styles.errorBox}><strong>Couldn't load games.</strong><p>{games.message}</p></div>;
     }
-    return <div className={styles.loading}><div className={styles.spinner} /><span>Loading roster…</span></div>;
+    return <div className={styles.loading}><div className={styles.spinner} /><span>Loading games…</span></div>;
   }
 
-  // Join roster + averages, sort by PPG desc, take top 8
-  const rosterData: BDLPlayer[] = roster.data;
-  const playersWithStats = rosterData.map(p => {
-    const stat = averages.state === 'ok' ? averages.data.find(a => a.player_id === p.id) : null;
-    return { player: p, stat };
-  });
-  const topScorers = [...playersWithStats]
-    .sort((a, b) => (b.stat?.pts ?? -1) - (a.stat?.pts ?? -1))
-    .slice(0, 8);
+  const record = computeRecord(games.data, team.id);
+  const finalGames = games.data.filter(g => g.status === 'Final');
+  const recent = finalGames.slice(0, 8);
 
   return (
     <div className={styles.detailScroll}>
@@ -157,37 +140,50 @@ function TeamDetail({ team }: { team: BDLTeam }) {
         <div className={styles.heroText}>
           <span className={styles.heroEyebrow}>{team.conference} · {team.division}</span>
           <h2 className={styles.heroName}>{team.full_name}</h2>
-          <span className={styles.heroMeta}>{season}–{String(season + 1).slice(2)} season · {rosterData.length} active players</span>
+          <span className={styles.heroMeta}>
+            {season}–{String(season + 1).slice(2)} · {record.wins}–{record.losses} in last {finalGames.length} shown
+          </span>
         </div>
       </div>
 
-      <h3 className={styles.sectionTitle}>Top scorers this season</h3>
-      {averages.state === 'loading' && <div className={styles.loadingInline}>Loading stats…</div>}
-      {averages.state === 'error' && (
-        <div className={styles.errorInline}>Stats unavailable — {averages.message}</div>
+      <h3 className={styles.sectionTitle}>Recent games</h3>
+      {recent.length === 0 ? (
+        <div className={styles.loadingInline}>No games found for the {season} season yet.</div>
+      ) : (
+        <ul className={styles.gameList}>
+          {recent.map(g => {
+            const isHome = g.home_team.id === team.id;
+            const opponent = isHome ? g.visitor_team : g.home_team;
+            const teamScore = isHome ? g.home_team_score : g.visitor_team_score;
+            const oppScore  = isHome ? g.visitor_team_score : g.home_team_score;
+            const won = teamScore > oppScore;
+            const oppCrest = getCrest(opponent.full_name) ?? getCrest(opponent.name);
+            return (
+              <li key={g.id} className={styles.gameRow}>
+                <span className={`${styles.wlPill} ${won ? styles.wPill : styles.lPill}`}>
+                  {won ? 'W' : 'L'}
+                </span>
+                <div className={styles.gameOpp}>
+                  {oppCrest && <img src={oppCrest} alt="" className={styles.oppCrest} />}
+                  <div className={styles.gameOppText}>
+                    <span className={styles.gameVs}>{isHome ? 'vs' : '@'}</span>
+                    <span className={styles.gameOppName}>{opponent.name}</span>
+                  </div>
+                </div>
+                <div className={styles.gameScore}>
+                  <span className={styles.gameScoreLine}>{teamScore} – {oppScore}</span>
+                  <span className={styles.gameDate}>{formatGameDate(g.date)}{g.postseason ? ' · Playoffs' : ''}</span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
-      <ul className={styles.playerList}>
-        {topScorers.map(({ player, stat }, i) => (
-          <li key={player.id} className={styles.playerRow}>
-            <span className={styles.rank}>{i + 1}</span>
-            <div className={styles.playerName}>
-              <span className={styles.playerFirst}>{player.first_name}</span>
-              <span className={styles.playerLast}>{player.last_name}</span>
-              <span className={styles.playerPos}>{player.position || '—'}</span>
-            </div>
-            {stat ? (
-              <div className={styles.statBlock}>
-                <span className={styles.statMain}>{stat.pts.toFixed(1)}<span className={styles.statUnit}>PPG</span></span>
-                <span className={styles.statSub}>{stat.reb.toFixed(1)} RPG · {stat.ast.toFixed(1)} APG</span>
-              </div>
-            ) : (
-              <div className={styles.statBlock}>
-                <span className={styles.statMissing}>No games yet</span>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
     </div>
   );
+}
+
+function formatGameDate(iso: string): string {
+  const d = new Date(iso + 'T00:00:00Z');
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
