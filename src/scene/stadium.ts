@@ -1,75 +1,84 @@
 import * as THREE from 'three';
 import { makeStadiumTexture, makeBoardTexture } from './textures/stadium-texture';
+import { COURT_WIDTH, COURT_HEIGHT } from './court';
 
 // ─── Sponsor board copy ──────────────────────────────────────────────
-// Edit these to change what appears on the LED perimeter boards.
-// Each side of the pitch shows 4 segments cycling around.
-const BOARD_TEXTS = {
-  northTouchline: [
-    { bg: '#0a1f3c', fg: '#00d66b', text: 'GOAL SPOT' },
-    { bg: '#1a0a2e', fg: '#c084fc', text: 'MOMENTS REPLAYED' },
-    { bg: '#0a1f3c', fg: '#ffffff', text: 'WHO SCORED?' },
-    { bg: '#0e2a10', fg: '#4ade80', text: 'GOAL SPOT' },
-  ],
-  southTouchline: [
-    { bg: '#1a0505', fg: '#f87171', text: 'THE BEST GOALS' },
-    { bg: '#0a1f3c', fg: '#60a5fa', text: 'GOAL SPOT' },
-    { bg: '#1a1a05', fg: '#facc15', text: 'GUESS THE SCORER' },
-    { bg: '#0a1f3c', fg: '#ffffff', text: 'GOAL SPOT' },
-  ],
-  rightGoalFlank: [
-    { bg: '#0a1f3c', fg: '#00d66b', text: 'GOAL SPOT' },
-    { bg: '#1a0a2e', fg: '#ffffff', text: 'BACK OF THE NET' },
-  ],
-  leftGoalFlank: [
-    { bg: '#1a0505', fg: '#f87171', text: 'GOAL SPOT' },
-    { bg: '#0e2a10', fg: '#4ade80', text: 'WONDER GOALS' },
-  ],
-};
+const BOARD_TEXTS = [
+  { bg: '#1a0a05', fg: '#ff8a3d', text: 'HOOP SPOT' },
+  { bg: '#0a1a2a', fg: '#ffffff', text: 'WHO SCORED?' },
+  { bg: '#2a1505', fg: '#ffb060', text: 'BUCKETS REPLAYED' },
+  { bg: '#0a1a2a', fg: '#ff6a1f', text: 'NOTHING BUT NET' },
+];
 // ─────────────────────────────────────────────────────────────────────
 
 export function buildStadium(scene: THREE.Scene): { backdropBoardTex: THREE.Texture; ledBoardTextures: THREE.Texture[] } {
   const ledBoardTextures: THREE.Texture[] = [];
-  // ── Small dark ground plane just covering the pitch corners ──────
-  // (Pitch is 110×60, corners need ~63 radius; keep tight so it doesn't catch crowd-flash bleed)
-  const groundGeo = new THREE.CircleGeometry(66, 48);
-  const groundMat = new THREE.MeshBasicMaterial({ color: 0x060c16 });
-  const ground = new THREE.Mesh(groundGeo, groundMat);
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -0.05;
-  scene.add(ground);
 
-  // ── Full 360° stadium backdrop ────────────────────────────────────
-  const stadGeo = new THREE.CylinderGeometry(105, 105, 90, 80, 1, true);
+  // Court apron — dark stained wood ellipse that hugs the court
+  const apronHalfX = COURT_WIDTH / 2 + 6.0;
+  const apronHalfZ = COURT_HEIGHT / 2 + 4.5;
+
+  const apronFill = new THREE.Mesh(
+    new THREE.CircleGeometry(1, 96),
+    new THREE.MeshLambertMaterial({ color: 0x3a2814 }),
+  );
+  apronFill.rotation.x = -Math.PI / 2;
+  apronFill.position.y = -0.04;
+  apronFill.scale.set(apronHalfX, apronHalfZ, 1);
+  scene.add(apronFill);
+
+  // Outer concrete halo — fades into the backdrop
+  const concrete = new THREE.Mesh(
+    new THREE.CircleGeometry(1, 96),
+    new THREE.MeshBasicMaterial({ color: 0x0a0d12 }),
+  );
+  concrete.rotation.x = -Math.PI / 2;
+  concrete.position.y = -0.06;
+  concrete.scale.set(apronHalfX + 24, apronHalfZ + 18, 1);
+  scene.add(concrete);
+
+  // ── 360° arena bowl backdrop (crowd) ─────────────────────────────
+  const stadGeo = new THREE.CylinderGeometry(60, 60, 70, 80, 1, true);
   const stadMat = new THREE.MeshBasicMaterial({ map: makeStadiumTexture(), side: THREE.BackSide });
   const stadium = new THREE.Mesh(stadGeo, stadMat);
-  stadium.position.y = 18;
+  stadium.position.y = 16;
+  stadium.scale.set(1.35, 1, 1);
   scene.add(stadium);
 
-  // (Skirt removed — was catching crowd-flash bleed. Backdrop fills the void.)
+  // ── Courtside sponsor boards — three flat rectangles in a row ────
+  // Placed along the FAR sideline (away from the broadcast camera) just
+  // outside the playing area, like bet365's courtside placement.
+  const boardW = 4.6;
+  const boardH = 1.3;
+  const boardD = 0.18;
+  const boardGap = 0.4;
+  const boardZ = -(COURT_HEIGHT / 2 + 1.4);   // tucked just behind the far sideline
+  const totalSpan = boardW * 3 + boardGap * 2;
+  const startX = -totalSpan / 2 + boardW / 2;
 
-  // ── Full 360° curved perimeter boards ────────────────────────────
-  const backdropBoardTex = makeBoardTexture();
-  const boardGeo = new THREE.CylinderGeometry(64, 64, 2.4, 80, 1, true);
-  const boardMat = new THREE.MeshBasicMaterial({ map: backdropBoardTex });
-  const boards = new THREE.Mesh(boardGeo, boardMat);
-  boards.position.y = 1.2;
-  scene.add(boards);
+  // Single row of scrolling LED boards at floor level.
+  // Each board shows roughly one full text segment at a time so the message
+  // is readable rather than squashed into many tiny copies. repeat.x is
+  // tuned so board.width × repeat ≈ one segment of the LED texture.
+  const ledTex = makeLedTex(BOARD_TEXTS);
+  ledTex.repeat.set(0.45, 1);
+  ledBoardTextures.push(ledTex);
+  const ledMat = new THREE.MeshBasicMaterial({ map: ledTex });
 
-  // ── Touchline boards ─────────────────────────────────────────────
-  buildTouchlineBoards(scene, ledBoardTextures);
+  for (let i = 0; i < 3; i++) {
+    const geo = new THREE.BoxGeometry(boardW, boardH, boardD);
+    const mesh = new THREE.Mesh(geo, ledMat);
+    mesh.position.set(startX + i * (boardW + boardGap), boardH / 2, boardZ);
+    scene.add(mesh);
+  }
+  void totalSpan;
 
-  // ── Goal-flank boards ─────────────────────────────────────────────
-  buildGoalFlankBoards(scene, ledBoardTextures);
-
-  return { backdropBoardTex, ledBoardTextures };
+  return { backdropBoardTex: ledTex, ledBoardTextures };
 }
 
-// Clean LED-board texture — one message per segment, centred, no tiling within a segment.
-// Designed to be scrolled horizontally via texture.offset.x for that real-stadium LED feel.
 function makeLedTex(segments: { bg: string; fg: string; text: string }[]): THREE.CanvasTexture {
   const H = 128;
-  const segW = 640; // wide enough for messages like "GUESS THE SCORER" to breathe
+  const segW = 640;
   const W = segW * segments.length;
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
@@ -77,19 +86,13 @@ function makeLedTex(segments: { bg: string; fg: string; text: string }[]): THREE
 
   segments.forEach((seg, i) => {
     const x = i * segW;
-
-    // Background panel
     ctx.fillStyle = seg.bg;
     ctx.fillRect(x, 0, segW, H);
-
-    // Top highlight line (LED bezel feel)
     ctx.fillStyle = 'rgba(255,255,255,0.10)';
     ctx.fillRect(x, 0, segW, 2);
-    // Bottom shadow line
     ctx.fillStyle = 'rgba(0,0,0,0.30)';
     ctx.fillRect(x, H - 2, segW, 2);
 
-    // Single centred text — auto-shrink to fit segment
     const padding = 32;
     const maxW = segW - padding * 2;
     let fontSize = Math.round(H * 0.58);
@@ -103,7 +106,6 @@ function makeLedTex(segments: { bg: string; fg: string; text: string }[]): THREE
     ctx.textAlign = 'center';
     ctx.fillText(seg.text, x + segW / 2, H / 2);
 
-    // Thin divider between segments
     if (i < segments.length - 1) {
       ctx.fillStyle = 'rgba(255,255,255,0.18)';
       ctx.fillRect(x + segW - 1, 6, 1, H - 12);
@@ -112,61 +114,6 @@ function makeLedTex(segments: { bg: string; fg: string; text: string }[]): THREE
 
   const tex = new THREE.CanvasTexture(c);
   tex.wrapS = THREE.RepeatWrapping;
-  tex.repeat.set(1, 1);
   tex.anisotropy = 8;
   return tex;
-}
-
-function buildTouchlineBoards(scene: THREE.Scene, ledTextures: THREE.Texture[]) {
-  const H = 1.6;
-  const D = 0.18;
-  const totalLen = 110;
-  const gap = 1.5;
-
-  const sides = [
-    { zSign:  1, segments: BOARD_TEXTS.northTouchline },
-    { zSign: -1, segments: BOARD_TEXTS.southTouchline },
-  ];
-
-  for (const { zSign, segments } of sides) {
-    const tex = makeLedTex(segments);
-    // Stretch so multiple messages are visible along the touchline at any time
-    tex.repeat.set(2, 1);
-    ledTextures.push(tex);
-    const geo = new THREE.BoxGeometry(totalLen, H, D);
-    const mat = new THREE.MeshBasicMaterial({ map: tex });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.set(0, H / 2, zSign * (30 + gap));
-    scene.add(mesh);
-  }
-}
-
-function buildGoalFlankBoards(scene: THREE.Scene, ledTextures: THREE.Texture[]) {
-  const GW = 7.32;
-  const boardLen = 14;
-  const boardH = 1.6;
-  const boardD = 0.18;
-  const xGap = 1.5;
-
-  const configs = [
-    { goalX:  55, segments: BOARD_TEXTS.rightGoalFlank },
-    { goalX: -55, segments: BOARD_TEXTS.leftGoalFlank },
-  ];
-
-  for (const { goalX, segments } of configs) {
-    const sign = goalX > 0 ? 1 : -1;
-    const xPos = goalX + sign * xGap;
-    const tex = makeLedTex(segments);
-    tex.repeat.set(1, 1);
-    ledTextures.push(tex);
-
-    for (const zSign of [-1, 1]) {
-      const zPos = zSign * (GW / 2 + boardLen / 2 + 0.5);
-      const geo = new THREE.BoxGeometry(boardD, boardH, boardLen);
-      const mat = new THREE.MeshBasicMaterial({ map: tex });
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(xPos, boardH / 2, zPos);
-      scene.add(mesh);
-    }
-  }
 }

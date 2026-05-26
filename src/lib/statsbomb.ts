@@ -104,12 +104,12 @@ function pickCamera(event: SBEvent, isFirst: boolean, isGoal: boolean, prev?: SB
   if (isFirst)       return 'wide';
   if (isGoal)        return 'close';
   if (event.type.name === 'Carry') return 'follow';
-  if (event.pass?.cross || event.pass?.height?.name === 'High Pass') return 'behind-goal';
+  if (event.pass?.cross || event.pass?.height?.name === 'High Pass') return 'baseline';
   // Inside the final third → behind-goal feels right
-  if (event.location && event.location[0] > 90) return 'behind-goal';
+  if (event.location && event.location[0] > 90) return 'baseline';
   if (prev && event.location && prev.location) {
     const dx = event.location[0] - prev.location[0];
-    if (dx > 25) return 'behind-goal';
+    if (dx > 25) return 'baseline';
   }
   return 'follow';
 }

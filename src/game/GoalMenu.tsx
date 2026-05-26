@@ -58,10 +58,10 @@ export function GoalMenu({ open, onClose }: Props) {
       onClick={handleBackdrop}
       aria-hidden={!open}
     >
-      <div className={styles.drawer} ref={drawerRef} role="dialog" aria-label="All goals">
+      <div className={styles.drawer} ref={drawerRef} role="dialog" aria-label="All hoops">
         <div className={styles.handle} />
         <div className={styles.drawerHead}>
-          <h2 className={styles.drawerTitle}>All Goals</h2>
+          <h2 className={styles.drawerTitle}>All Hoops</h2>
           <span className={styles.drawerCount}>{GOALS.length} moments</span>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
         </div>

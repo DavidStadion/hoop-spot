@@ -2,13 +2,11 @@ import { useEffect, useState } from 'react';
 import { Game } from './game/Game';
 import { Splash } from './game/Splash';
 import { HowToPlay, shouldSkipHowToPlay } from './game/HowToPlay';
-import { StatsBombMode } from './game/StatsBombMode';
-import { ClubMode } from './game/ClubMode';
 import { useGameStore } from './store/gameStore';
 import { useSettingsStore } from './store/settingsStore';
 import { audio } from './lib/audio';
 
-type Screen = 'splash' | 'howto' | 'game' | 'statsbomb' | 'clubmode';
+type Screen = 'splash' | 'howto' | 'game';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('splash');
@@ -18,25 +16,12 @@ export default function App() {
   useEffect(() => { audio.setMuted(!audioEnabled); }, [audioEnabled]);
 
   function handleStart() {
-    // First user gesture — safe to init AudioContext now
     audio.init();
     audio.setMuted(!useSettingsStore.getState().audio);
     setExiting(true);
     setTimeout(() => {
       setScreen(shouldSkipHowToPlay() ? 'game' : 'howto');
     }, 480);
-  }
-
-  function handleStatsBomb() {
-    audio.init();
-    audio.setMuted(!useSettingsStore.getState().audio);
-    setScreen('statsbomb');
-  }
-
-  function handlePickClub() {
-    audio.init();
-    audio.setMuted(!useSettingsStore.getState().audio);
-    setScreen('clubmode');
   }
 
   function handleHowToClose() {
@@ -49,9 +34,7 @@ export default function App() {
     resetRound();
   }
 
-  if (screen === 'splash')    return <Splash onStart={handleStart} onStatsBomb={handleStatsBomb} onPickClub={handlePickClub} exiting={exiting} />;
-  if (screen === 'howto')     return <HowToPlay onClose={handleHowToClose} />;
-  if (screen === 'statsbomb') return <StatsBombMode onBack={() => setScreen('splash')} onPlay={() => setScreen('game')} />;
-  if (screen === 'clubmode')  return <ClubMode onBack={() => setScreen('splash')} onPlay={() => setScreen('game')} />;
+  if (screen === 'splash') return <Splash onStart={handleStart} exiting={exiting} />;
+  if (screen === 'howto')  return <HowToPlay onClose={handleHowToClose} />;
   return <Game onQuit={handleQuit} />;
 }

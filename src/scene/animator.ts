@@ -1,44 +1,64 @@
-import * as THREE from 'three';
-import type { Goal, CameraShot } from '../data/types';
+import type { Play, CameraShot, ShotType, Waypoint } from '../data/types';
 import { Ball } from './ball';
-import type { GoalHandle } from './goal';
+import type { HoopHandle } from './hoop';
 import type { Trail } from './trail';
 import { getSettings } from '../store/settingsStore';
 import { audio } from '../lib/audio';
 
 type Events = {
-  waypoint: (wp: { label: string; isGoal?: boolean }) => void;
+  waypoint: (wp: { label: string; isBasket?: boolean }) => void;
   'label-hide': () => void;
   'birds-eye-start': () => void;
   'birds-eye-end': () => void;
-  'goal-scored': (pos: { x: number; z: number }) => void;
+  'basket-scored': (pos: { x: number; z: number }) => void;
   'cinematic-start': () => void;
   'cinematic-end': () => void;
-  'goal-stinger': () => void;
+  'basket-stinger': () => void;
   complete: () => void;
 };
 type Listener<T extends keyof Events> = Events[T];
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+// Hoop rim is at x = ±12.75 (1.575 m from baseline of a 28.65 m court).
+export const HOOP_X = 12.75;
+
+/** Arc height (metres) per shot type, used when the waypoint doesn't override. */
+function arcFor(shotType: ShotType, dist: number): number {
+  switch (shotType) {
+    case 'dribble':   return 0;
+    case 'pass':      return dist > 6 ? 1.1 : 0.25;
+    case 'layup':     return 1.4;
+    case 'dunk':      return 0.8;            // ascending drive then slam — low arc
+    case 'jumpShot':  return 4.0;
+    case 'three':     return 4.8;
+    case 'freeThrow': return 4.2;
+    default:          return 1.0;
+  }
+}
+
+/** Settle height of the ball at the END of the segment (metres). */
+function endYFor(wp: Waypoint, shotType: ShotType): number {
+  if (wp.endY != null) return wp.endY;
+  if (wp.isBasket) return 3.05;              // ball at rim height (just dropped through)
+  if (shotType === 'dribble') return 0.32;
+  return 0.32;
+}
+
 export class Animator {
   private ball: Ball;
-  private goals: Map<number, GoalHandle>;
+  private hoops: Map<number, HoopHandle>;
   private trail: Trail;
   private listeners: Partial<{ [K in keyof Events]: Listener<K>[] }> = {};
 
   // Read every frame by Scene tick for dynamic cameras
   activeShotType: CameraShot | null = null;
-  attackingGoalX = 55;
+  attackingGoalX = HOOP_X;
   birdsEyeActive = false;
 
-  constructor(
-    ball: Ball,
-    goals: Map<number, GoalHandle>,
-    trail: Trail,
-  ) {
+  constructor(ball: Ball, hoops: Map<number, HoopHandle>, trail: Trail) {
     this.ball = ball;
-    this.goals = goals;
+    this.hoops = hoops;
     this.trail = trail;
   }
 
@@ -52,19 +72,17 @@ export class Animator {
     fns?.forEach((f) => f(...args));
   }
 
-  async playGoal(goal: Goal) {
-    const wps = goal.buildup;
+  async playGoal(play: Play) {
+    const wps = play.buildup;
     this.trail.clear();
     this.birdsEyeActive = false;
 
-    // Determine which goal we're attacking from the last waypoint
     const lastWp = wps[wps.length - 1];
-    this.attackingGoalX = lastWp.x > 0 ? 55 : -55;
+    this.attackingGoalX = lastWp.x > 0 ? HOOP_X : -HOOP_X;
 
     this.ball.place(wps[0].x, wps[0].z);
     this.activeShotType = 'wide';
 
-    // Audio: kickoff whistle + start crowd ambient
     if (getSettings().audio) {
       audio.startCrowd(0.16);
       audio.whistle();
@@ -73,9 +91,8 @@ export class Animator {
     this.emit('waypoint', { label: wps[0].label });
     await wait(900);
 
-    const specials = goal.meta.specials ?? [];
-    const hasKeeperPov = specials.includes('keeperPov');
-    const hasCrowdPan  = specials.includes('crowdPan');
+    const specials = play.meta.specials ?? [];
+    const hasSwishCam  = specials.includes('swishCam');
     const hasCableCam  = specials.includes('cableCam');
 
     for (let i = 1; i < wps.length; i++) {
@@ -85,74 +102,71 @@ export class Animator {
       this.emit('label-hide');
 
       const settings = getSettings();
+      const isBasket = !!(curr.isBasket || curr.isGoal);
+      const shotType: ShotType =
+        curr.shotType ?? (curr.dribble ? 'dribble' : isBasket ? 'jumpShot' : 'pass');
+      const isDribble = shotType === 'dribble';
 
-      // Switch camera shot — dynamic system picks it up immediately.
-      // Dribble waypoints use the dedicated tight chase camera unless disabled.
-      const useDribbleCam = curr.dribble && settings.dribbleCam;
-      // For 'cableCam' goals: middle waypoints (not first, not last, not dribble) use the cable-cam shot
+      // Camera selection
+      const useDribbleCam = isDribble && settings.dribbleCam;
       const isMiddleWaypoint = i > 1 && i < wps.length - 1;
-      const useCableCam = hasCableCam && isMiddleWaypoint && !curr.dribble;
-      // For 'keeperPov' goals: the strike itself uses the keeper-POV camera
-      const useKeeperPov = hasKeeperPov && curr.isGoal;
+      const useCableCam = hasCableCam && isMiddleWaypoint && !isDribble;
+      const useSwishCam = hasSwishCam && isBasket;
 
       this.activeShotType =
-        useKeeperPov  ? 'keeper-pov' :
-        useCableCam   ? 'cable-cam'  :
-        useDribbleCam ? 'dribble'    :
+        useSwishCam   ? 'swish-cam' :
+        useCableCam   ? 'cable-cam' :
+        useDribbleCam ? 'dribble'   :
         curr.camera;
 
-      // Cinematic mode kicks in for the goal shot (if enabled in settings)
-      if (curr.isGoal && settings.cinematic) {
+      // Cinematic mode on the basket
+      if (isBasket && settings.cinematic) {
         this.emit('cinematic-start');
-        // Small extra beat of anticipation before the strike
         await wait(280);
       } else {
-        // Small lead before ball moves so camera starts swinging first
         await wait(180);
       }
 
       const dist = Math.hypot(curr.x - prev.x, curr.z - prev.z);
-      // Dribbles: ball stays on the floor (no arc), ground end height.
-      // Passes/shots: existing arc logic.
-      const arcHeight = curr.dribble ? 0 : (curr.arc ?? (curr.isGoal ? 2.2 : dist > 20 ? 3.5 : 0.3));
-      const endY = curr.dribble ? 0.32 : (curr.endY ?? 0.32);
-      // The goal shot plays in slow-mo (×1.7 duration) if cinematic enabled
+      const arcHeight = curr.arc ?? arcFor(shotType, dist);
+      const endY = endYFor(curr, shotType);
       const baseDur = curr.duration ?? 900;
-      const dur = (curr.isGoal && settings.cinematic) ? Math.round(baseDur * 1.7) : baseDur;
+      const dur = (isBasket && settings.cinematic) ? Math.round(baseDur * 1.7) : baseDur;
 
-      // Audio: kick / shot sound + crowd swell on the strike
+      // Audio per shot type
       if (settings.audio) {
-        if (curr.isGoal) {
-          audio.kick(1.3);
+        if (isBasket) {
+          // shot release sound, then swish on landing handled below
+          if (shotType === 'dunk')      audio.kick(1.1);
+          else if (shotType === 'three') audio.kick(0.75);
+          else                           audio.kick(0.85);
           audio.crowdSwell(0.4, 0.15, 0.4, 0.6);
-        } else if (!curr.dribble) {
-          audio.kick(0.85);
+        } else if (isDribble) {
+          // dribble bounces are emitted by the ball mid-flight (see Ball)
+        } else {
+          audio.pass();
         }
       }
 
-      await this.ball.move(prev, curr, dur, arcHeight, this.trail, endY, curr.dribble ?? false);
+      await this.ball.move(prev, curr, dur, arcHeight, this.trail, endY, isDribble);
 
-      if (curr.isGoal) {
-        const goalX = curr.x > 0 ? 55 : -55;
-        this.goals.get(goalX)?.ripple();
-        this.emit('goal-scored', { x: curr.x, z: curr.z });
-        if (settings.audio) audio.goalRoar();
-        this.emit('goal-stinger');  // The Cinematic component decides whether to render it
-        this.emit('waypoint', { label: curr.label, isGoal: true });
-
-        // Hold close (or keeper-POV) shot on the ball in the net
-        await wait(900);
-
-        // Crowd-pan special: tilt up to the back of the stand before birds-eye
-        if (hasCrowdPan) {
-          this.activeShotType = 'crowd-pan';
-          await wait(1100);
+      if (isBasket) {
+        const hoopX = curr.x > 0 ? HOOP_X : -HOOP_X;
+        this.hoops.get(hoopX)?.ripple();
+        this.emit('basket-scored', { x: curr.x, z: curr.z });
+        if (settings.audio) {
+          audio.swish();
+          audio.basketRoar();
         }
+        this.emit('basket-stinger');
+        this.emit('waypoint', { label: curr.label, isBasket: true });
+
+        // Hold the closeup on the rim for a beat — much better than panning
+        // to a broken crowd shot in the indoor arena.
+        await wait(1500);
 
         if (settings.cinematic) this.emit('cinematic-end');
 
-        // Birds-eye: Scene tick reads this flag and animates up
-        // Hold long enough for player labels to appear and be read
         this.emit('birds-eye-start');
         this.birdsEyeActive = true;
         await wait(3500);
@@ -165,7 +179,6 @@ export class Animator {
     }
 
     this.activeShotType = null;
-    // Crowd fades out as the round closes for guessing
     if (getSettings().audio) audio.stopCrowd();
     this.emit('complete');
   }

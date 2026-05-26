@@ -12,7 +12,8 @@ type State = {
   queue: Goal[];
   queueIdx: number;
   phase: Phase;
-  score: number;
+  score: number;       // correct-count (drives ROUND_SIZE pip UI)
+  points: number;      // basketball points scored for correct guesses
   streak: number;
   roundResults: boolean[];
   answered: string | null;
@@ -65,6 +66,7 @@ export const useGameStore = create<State>((set, get) => ({
   goal: initialQueue[0],
   phase: 'idle',
   score: 0,
+  points: 0,
   streak: 0,
   roundResults: [],
   answered: null,
@@ -78,12 +80,14 @@ export const useGameStore = create<State>((set, get) => ({
   startPlay: () => set({ phase: 'playing' }),
 
   guess: (name) => {
-    const { goal, score, streak, roundResults } = get();
+    const { goal, score, points, streak, roundResults } = get();
     const correct = name === goal.scorer;
+    const earned = correct ? (goal.meta.points ?? 2) : 0;
     set({
       answered: name,
       phase: correct ? 'correct' : 'wrong',
       score: correct ? score + 1 : score,
+      points: points + earned,
       streak: correct ? streak + 1 : 0,
       roundResults: [...roundResults, correct],
     });
@@ -119,6 +123,7 @@ export const useGameStore = create<State>((set, get) => ({
       goal: q[0],
       phase: 'idle',
       score: 0,
+      points: 0,
       streak: 0,
       roundResults: [],
       answered: null,
@@ -138,6 +143,7 @@ export const useGameStore = create<State>((set, get) => ({
       goal,
       phase: 'idle',
       score: 0,
+      points: 0,
       streak: 0,
       roundResults: [],
       answered: null,
@@ -150,7 +156,7 @@ export const useGameStore = create<State>((set, get) => ({
     const chosen = GOALS.find(g => g.id === id)!;
     const rest = [...GOALS].filter(g => g.id !== id).sort(() => Math.random() - 0.5).slice(0, ROUND_SIZE - 1);
     const q = [chosen, ...rest];
-    set({ queue: q, queueIdx: 0, goal: chosen, phase: 'idle', score: 0, streak: 0, roundResults: [], answered: null, label: '', birdsEye: false });
+    set({ queue: q, queueIdx: 0, goal: chosen, phase: 'idle', score: 0, points: 0, streak: 0, roundResults: [], answered: null, label: '', birdsEye: false });
   },
 
   setLabel: (label) => set({ label }),

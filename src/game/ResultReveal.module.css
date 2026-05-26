@@ -27,7 +27,7 @@
 }
 
 .sheetCorrect {
-  border-top: 2px solid rgba(0, 214, 107, 0.55);
+  border-top: 2px solid rgba(244, 90, 14, 0.55);
 }
 .sheetWrong {
   border-top: 2px solid rgba(244, 67, 54, 0.5);
@@ -57,9 +57,9 @@
   flex-shrink: 0;
 }
 .iconCorrect {
-  background: rgba(0, 214, 107, 0.16);
-  color: #00d66b;
-  box-shadow: 0 0 24px rgba(0, 214, 107, 0.3);
+  background: rgba(244, 90, 14, 0.16);
+  color: #f45a0e;
+  box-shadow: 0 0 24px rgba(244, 90, 14, 0.3);
 }
 .iconWrong {
   background: rgba(244, 67, 54, 0.16);
@@ -79,7 +79,7 @@
   letter-spacing: -0.5px;
   line-height: 1.05;
 }
-.verdictCorrect { color: #00d66b; }
+.verdictCorrect { color: #f45a0e; }
 .verdictWrong   { color: #f44336; }
 .verdictSub {
   font-size: 12px;
@@ -94,15 +94,15 @@
   flex-direction: column;
   align-items: center;
   gap: 1px;
-  background: rgba(0, 214, 107, 0.14);
-  border: 1px solid rgba(0, 214, 107, 0.4);
+  background: rgba(244, 90, 14, 0.14);
+  border: 1px solid rgba(244, 90, 14, 0.4);
   padding: 6px 10px;
   border-radius: 10px;
   flex-shrink: 0;
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.14em;
-  color: #00d66b;
+  color: #f45a0e;
   line-height: 1;
   text-transform: uppercase;
 }
@@ -248,13 +248,13 @@
 .posterChip {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(0, 214, 107, 0.14), rgba(79, 195, 247, 0.10));
-  border: 1px solid rgba(0, 214, 107, 0.4);
+  background: linear-gradient(135deg, rgba(244, 90, 14, 0.14), rgba(79, 195, 247, 0.10));
+  border: 1px solid rgba(244, 90, 14, 0.4);
   color: #ffffff;
 }
 .posterChip:hover {
-  border-color: rgba(0, 214, 107, 0.65);
-  background: linear-gradient(135deg, rgba(0, 214, 107, 0.22), rgba(79, 195, 247, 0.16));
+  border-color: rgba(244, 90, 14, 0.65);
+  background: linear-gradient(135deg, rgba(244, 90, 14, 0.22), rgba(79, 195, 247, 0.16));
 }
 
 /* ─── Next button (primary CTA) ────────────────────────────────── */

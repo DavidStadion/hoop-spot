@@ -33,7 +33,7 @@ export function HowToPlay({ onClose }: Props) {
 
       <div className={styles.content}>
         <h1 className={styles.title}>How to play</h1>
-        <p className={styles.subtitle}>Five famous goals. Four names. One scorer.</p>
+        <p className={styles.subtitle}>Five famous hoops. Four names. One scorer.</p>
 
         <ol className={styles.steps}>
           <li className={styles.step}>
@@ -44,7 +44,7 @@ export function HowToPlay({ onClose }: Props) {
             </span>
             <div className={styles.stepText}>
               <strong>Watch the build-up</strong>
-              <span>Each goal is recreated on a 3D pitch — passes, runs and the finish.</span>
+              <span>Each hoop is recreated on a 3D court — passes, drives and the finish.</span>
             </div>
           </li>
 
@@ -70,7 +70,7 @@ export function HowToPlay({ onClose }: Props) {
             </span>
             <div className={styles.stepText}>
               <strong>Replay or explore</strong>
-              <span>Replay the build-up, or drag to orbit the pitch in 3D.</span>
+              <span>Replay the build-up, or drag to orbit the court in 3D.</span>
             </div>
           </li>
 
@@ -83,7 +83,7 @@ export function HowToPlay({ onClose }: Props) {
             </span>
             <div className={styles.stepText}>
               <strong>Build a streak</strong>
-              <span>Five goals per round. Get them all right for a perfect streak.</span>
+              <span>Five hoops per round. Get them all right for a perfect streak.</span>
             </div>
           </li>
         </ol>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { useSettingsStore } from '../store/settingsStore';
-import { computeGoalStats, xgLabel } from '../lib/goal-stats';
+import { computeGoalStats } from '../lib/goal-stats';
 import styles from './Cinematic.module.css';
 
 export function Cinematic() {
@@ -35,14 +35,15 @@ export function Cinematic() {
       {/* Goal stinger */}
       {stingerOn && (() => {
         const stats = computeGoalStats(goal);
-        const tag = xgLabel(goal.meta.xg);
+        const pts = goal.meta.points ?? 2;
+        const tag = pts === 3 ? 'THREE!' : pts === 1 ? 'AND ONE' : null;
         return (
           <div className={styles.stinger} aria-hidden="true">
-            <span className={styles.stingerText}>GOAL!</span>
+            <span className={styles.stingerText}>BUCKET!</span>
             {tag && (
               <span className={styles.stingerTag}>
                 {tag}
-                {goal.meta.xg != null && <span className={styles.stingerXg}> · xG {goal.meta.xg.toFixed(2)}</span>}
+                <span className={styles.stingerXg}> · +{pts}</span>
               </span>
             )}
             <span className={styles.statChip}>
@@ -55,7 +56,7 @@ export function Cinematic() {
               </span>
               <span className={styles.statDivider}>·</span>
               <span className={styles.statItem}>
-                <strong>{Math.round(stats.distanceM)}</strong>m
+                <strong>{stats.distanceM.toFixed(1)}</strong>m
               </span>
             </span>
           </div>

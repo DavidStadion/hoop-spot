@@ -2,9 +2,9 @@ import { useGameStore, ROUND_SIZE } from '../store/gameStore';
 import styles from './RoundComplete.module.css';
 
 function getMessage(score: number): string {
-  if (score === 5) return 'Perfect round. You know your football history.';
+  if (score === 5) return 'Perfect round. You know your basketball.';
   if (score >= 4) return 'Nearly perfect — great knowledge.';
-  if (score >= 3) return 'Decent. You know your goals.';
+  if (score >= 3) return 'Decent. You know your hoops.';
   if (score >= 2) return 'Keep playing — it gets easier.';
   return 'Brush up on the classics.';
 }
@@ -26,7 +26,7 @@ export function RoundComplete({ onQuit }: { onQuit: () => void }) {
       <div className={styles.emojis}>
         {roundResults.map((correct, i) => (
           <span key={i} className={correct ? styles.hit : styles.miss}>
-            {correct ? '⚽' : '○'}
+            {correct ? '🏀' : '○'}
           </span>
         ))}
       </div>

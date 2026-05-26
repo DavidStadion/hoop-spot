@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useGameStore, ROUND_SIZE } from '../store/gameStore';
 import { useCollectionStore } from '../store/collectionStore';
-import { computeGoalStats, xgLabel } from '../lib/goal-stats';
+import { computeGoalStats } from '../lib/goal-stats';
 import { PosterPreview } from './PosterPreview';
 import styles from './ResultReveal.module.css';
 
@@ -20,7 +20,8 @@ export function ResultReveal() {
   const skipped = answered === '__skip__';
   const isLastGoal = queueIdx + 1 >= ROUND_SIZE;
   const stats = computeGoalStats(goal);
-  const xgTag = xgLabel(goal.meta.xg);
+  const pts = goal.meta.points ?? 2;
+  const ptsLabel = pts === 3 ? '3PT' : pts === 1 ? 'FT' : '2PT';
 
   return (
     <>
@@ -47,12 +48,10 @@ export function ResultReveal() {
               {correct ? 'Nice spot.' : skipped ? 'No worries — moving on.' : "Don't worry — here's the answer."}
             </span>
           </div>
-          {xgTag && (
-            <span className={styles.xgPill}>
-              {xgTag}
-              {goal.meta.xg != null && <span className={styles.xgValue}>{goal.meta.xg.toFixed(2)}</span>}
-            </span>
-          )}
+          <span className={styles.xgPill}>
+            {ptsLabel}
+            <span className={styles.xgValue}>+{pts}</span>
+          </span>
         </div>
 
         {/* ── Scorer card ─────────────────────────────────────── */}
@@ -110,7 +109,7 @@ export function ResultReveal() {
 
         {/* ── Primary CTA ─────────────────────────────────────── */}
         <button className={styles.nextBtn} onClick={next}>
-          {isLastGoal ? 'See results' : 'Next goal'}
+          {isLastGoal ? 'See results' : 'Next hoop'}
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12h14M13 5l7 7-7 7" />
           </svg>

@@ -1,67 +1,88 @@
-// Maps display names to static asset paths served from /assets/ via publicDir
+// NBA team + competition logo lookup.
+// Logos are served from ESPN's public CDN — same URL pattern espn.com uses
+// for its own scoreboard. Each is a transparent-PNG 500×500.
+const ESPN_TEAM = (abbr: string) =>
+  `https://a.espncdn.com/i/teamlogos/nba/500/${abbr}.png`;
 
-// Explicit team crest mapping. Names match both our hand-authored data and
-// the team names StatsBomb uses in their open data feeds.
 const TEAM_CRESTS: Record<string, string> = {
-  // Hand-authored set
-  'Liverpool':            '/crests/Team=Liverpool.svg',
-  'Bayern Munich':        '/crests/Team=FC Bayern Munich.svg',
-  'Man United':           '/crests/Team=Manchester United.svg',
-  'Manchester United':    '/crests/Team=Manchester United.svg',
-  'Argentina':            '/crests/Team=Argentina.svg',
-  'England':              '/crests/Team=England.svg',
-  'Brazil':               '/crests/Team=Brazil.svg',
-  'Germany':              '/crests/Team=Germany.svg',
-  'Real Madrid':          '/crests/Team=Real Madrid.svg',
-  'Man City':             '/crests/Team=Manchester City.svg',
-  'Manchester City':      '/crests/Team=Manchester City.svg',
-  'Barcelona':            '/crests/Team=Barca.svg',
-  'Getafe':               '/crests/Team=Getafe.svg',
+  // ── Plays we ship today ──────────────────────────────────────────
+  'Heat':       ESPN_TEAM('mia'),
+  'Miami Heat': ESPN_TEAM('mia'),
+  'Spurs':      ESPN_TEAM('sa'),
+  'San Antonio Spurs': ESPN_TEAM('sa'),
+  'Blazers':    ESPN_TEAM('por'),
+  'Portland Trail Blazers': ESPN_TEAM('por'),
+  'Thunder':    ESPN_TEAM('okc'),
+  'Oklahoma City Thunder': ESPN_TEAM('okc'),
+  'Cavs':       ESPN_TEAM('cle'),
+  'Cavaliers':  ESPN_TEAM('cle'),
+  'Cleveland Cavaliers': ESPN_TEAM('cle'),
+  'Bulls':      ESPN_TEAM('chi'),
+  'Chicago Bulls': ESPN_TEAM('chi'),
+  'Raptors':    ESPN_TEAM('tor'),
+  'Toronto Raptors': ESPN_TEAM('tor'),
+  '76ers':      ESPN_TEAM('phi'),
+  'Sixers':     ESPN_TEAM('phi'),
+  'Philadelphia 76ers': ESPN_TEAM('phi'),
+  'Warriors':   ESPN_TEAM('gs'),
+  'Golden State Warriors': ESPN_TEAM('gs'),
 
-  // StatsBomb common teams (Property 1= folder)
-  'Juventus':             '/crests/Property 1=Juventus - White.svg',
-  'Atletico Madrid':      '/crests/Property 1=Athletico Madrid.svg',
-  'Atlético Madrid':      '/crests/Property 1=Athletico Madrid.svg',
-  'Athletico Madrid':     '/crests/Property 1=Athletico Madrid.svg',
-  'Boca Juniors':         '/crests/Property 1=BOCA Juniors.svg',
-  'Benfica':              '/crests/Property 1=Benefica.svg',
-  'Benefica':             '/crests/Property 1=Benefica.svg',
-  'Borussia Dortmund':    '/crests/Property 1=Borussia.svg',
-  'Borussia M\'gladbach': '/crests/Property 1=Borussia.svg',
-  'Botafogo':             '/crests/Property 1=Botafogo.svg',
-  'River Plate':          '/crests/Property 1=CA River Plate.svg',
-  'Chelsea':              '/crests/Property 1=Chelsea.svg',
-  'Club León':            '/crests/Property 1=Club Leon.svg',
-  'Club Leon':            '/crests/Property 1=Club Leon.svg',
-  'Porto':                '/crests/Property 1=FC Porto.svg',
-  'FC Porto':             '/crests/Property 1=FC Porto.svg',
-  'Flamengo':             '/crests/Property 1=Flamengo Braz.svg',
-  'Fluminense':           '/crests/Property 1=Fluminense.svg',
-  'Inter Miami':          '/crests/Property 1=Inter Miami.svg',
-  'Inter':                '/crests/Property 1=Internazionale Milano.svg',
-  'Inter Milan':          '/crests/Property 1=Internazionale Milano.svg',
-  'Internazionale':       '/crests/Property 1=Internazionale Milano.svg',
-  'Paris Saint-Germain':  '/crests/Property 1=PSG.svg',
-  'PSG':                  '/crests/Property 1=PSG.svg',
-  'Palmeiras':            '/crests/Property 1=Palmeiras.svg',
-  'Pachuca':              '/crests/Property 1=Pachuca Tuzos.svg',
-  'Red Bull Salzburg':    '/crests/Property 1=Red Bull Salzburg.svg',
-  'RB Salzburg':          '/crests/Property 1=Red Bull Salzburg.svg',
-  'Al Ahly':              '/crests/Property 1=Al Ahly.svg',
-  'Al Hilal':             '/crests/Property 1=Al Hilal White.svg',
+  // ── Full league — pre-populated so any future play "just works" ──
+  'Hawks':      ESPN_TEAM('atl'),
+  'Atlanta Hawks': ESPN_TEAM('atl'),
+  'Celtics':    ESPN_TEAM('bos'),
+  'Boston Celtics': ESPN_TEAM('bos'),
+  'Nets':       ESPN_TEAM('bkn'),
+  'Brooklyn Nets': ESPN_TEAM('bkn'),
+  'Hornets':    ESPN_TEAM('cha'),
+  'Charlotte Hornets': ESPN_TEAM('cha'),
+  'Mavericks':  ESPN_TEAM('dal'),
+  'Mavs':       ESPN_TEAM('dal'),
+  'Dallas Mavericks': ESPN_TEAM('dal'),
+  'Nuggets':    ESPN_TEAM('den'),
+  'Denver Nuggets': ESPN_TEAM('den'),
+  'Pistons':    ESPN_TEAM('det'),
+  'Detroit Pistons': ESPN_TEAM('det'),
+  'Rockets':    ESPN_TEAM('hou'),
+  'Houston Rockets': ESPN_TEAM('hou'),
+  'Pacers':     ESPN_TEAM('ind'),
+  'Indiana Pacers': ESPN_TEAM('ind'),
+  'Clippers':   ESPN_TEAM('lac'),
+  'LA Clippers': ESPN_TEAM('lac'),
+  'Lakers':     ESPN_TEAM('lal'),
+  'Los Angeles Lakers': ESPN_TEAM('lal'),
+  'Grizzlies':  ESPN_TEAM('mem'),
+  'Memphis Grizzlies': ESPN_TEAM('mem'),
+  'Bucks':      ESPN_TEAM('mil'),
+  'Milwaukee Bucks': ESPN_TEAM('mil'),
+  'Timberwolves': ESPN_TEAM('min'),
+  'Wolves':     ESPN_TEAM('min'),
+  'Minnesota Timberwolves': ESPN_TEAM('min'),
+  'Pelicans':   ESPN_TEAM('no'),
+  'New Orleans Pelicans': ESPN_TEAM('no'),
+  'Knicks':     ESPN_TEAM('ny'),
+  'New York Knicks': ESPN_TEAM('ny'),
+  'Magic':      ESPN_TEAM('orl'),
+  'Orlando Magic': ESPN_TEAM('orl'),
+  'Suns':       ESPN_TEAM('phx'),
+  'Phoenix Suns': ESPN_TEAM('phx'),
+  'Kings':      ESPN_TEAM('sac'),
+  'Sacramento Kings': ESPN_TEAM('sac'),
+  'Jazz':       ESPN_TEAM('utah'),
+  'Utah Jazz':  ESPN_TEAM('utah'),
+  'Wizards':    ESPN_TEAM('wsh'),
+  'Washington Wizards': ESPN_TEAM('wsh'),
 };
 
-/** Look up a team crest. Falls back to partial substring match for variants
- *  ("Manchester City" → "Man City" etc.) so StatsBomb naming doesn't lose. */
+/** Look up a team crest. Substring fallback so variants resolve. */
 export function getCrest(team: string): string | null {
   if (!team) return null;
   const exact = TEAM_CRESTS[team];
   if (exact) return exact;
-  // Fuzzy: substring match either way
   const lower = team.toLowerCase();
   for (const key of Object.keys(TEAM_CRESTS)) {
     const k = key.toLowerCase();
-    if (TEAM_CRESTS[key] && (lower.includes(k) || k.includes(lower))) {
+    if (lower.includes(k) || k.includes(lower)) {
       return TEAM_CRESTS[key];
     }
   }
@@ -69,22 +90,12 @@ export function getCrest(team: string): string | null {
 }
 
 // ─── Competition logos ───────────────────────────────────────────
+const NBA_LEAGUE = 'https://a.espncdn.com/i/teamlogos/leagues/500/nba.png';
+
 const COMP_LOGOS: Array<[RegExp, string]> = [
-  [/champions league/i,         '/competitions/Property 1=Champions League, Colour=White.svg'],
-  [/europa league/i,            '/competitions/Property 1=Europa League, Colour=Colour.svg'],
-  [/premier league/i,           '/competitions/Property 1=Premier League Logo Mark, Colour=Colour.svg'],
-  [/la liga/i,                  '/competitions/Property 1=laliga.svg'],
-  [/serie a/i,                  '/competitions/Property 1=SerieA.svg'],
-  [/bundesliga/i,               '/competitions/Property 1=Bundesliga.svg'],
-  [/ligue 1/i,                  '/competitions/Property 1=Ligue1-White.svg'],
-  [/fa cup/i,                   '/competitions/Property 1=Emirates FA Cup, Colour=Colour.svg'],
-  [/carabao/i,                  '/competitions/Property 1=Carabao Cup, Colour=Colour.svg'],
-  [/world cup 26|wc 26/i,       '/competitions/Competition=WC 26.svg'],
-  [/women.*champions league/i,  '/competitions/Property 1=Womens Champions League, Colour=Colour.svg'],
-  [/women.*super league/i,      '/competitions/Property 1=NEW Womens Super League - Stacked, Colour=Colour.svg'],
-  [/uefa euro/i,                '/competitions/Property 1=Champions League, Colour=White.svg'], // fallback to UEFA branding
-  [/world cup/i,                '/competitions/Competition=WC 26.svg'],
-  [/copa del rey/i,             '/competitions/Property 1=laliga.svg'],
+  [/nba finals/i,    NBA_LEAGUE],
+  [/nba playoffs/i,  NBA_LEAGUE],
+  [/nba|regular season|playoff/i, NBA_LEAGUE],
 ];
 
 export function getCompLogo(comp: string): string | null {

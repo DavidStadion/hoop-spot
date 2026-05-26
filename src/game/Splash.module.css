@@ -28,7 +28,7 @@
   width: 420px;
   height: 420px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,214,107,0.13) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(244,90,14,0.13) 0%, transparent 70%);
   top: -80px;
   left: -100px;
   animation: drift1 9s ease-in-out infinite;
@@ -76,6 +76,15 @@
   letter-spacing: -0.5px;
   color: #ffffff;
   margin: 0;
+}
+
+.tagline {
+  margin: 10px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
 }
 
 /* ─── Button stack ─────────────────────────────────────────────── */
@@ -128,14 +137,14 @@
 
 /* ─── Ghost — lowest contrast, dashed accent ────────────────────── */
 .actionBtn.ghost {
-  background: rgba(0, 214, 107, 0.04);
-  border-color: rgba(0, 214, 107, 0.4);
+  background: rgba(244, 90, 14, 0.04);
+  border-color: rgba(244, 90, 14, 0.4);
   border-style: dashed;
-  color: #00d66b;
+  color: #f45a0e;
 }
 .actionBtn.ghost:hover {
-  background: rgba(0, 214, 107, 0.08);
-  border-color: rgba(0, 214, 107, 0.7);
+  background: rgba(244, 90, 14, 0.08);
+  border-color: rgba(244, 90, 14, 0.7);
 }
 
 /* ─── Credit ─────────────────────────────────────────────────────── */

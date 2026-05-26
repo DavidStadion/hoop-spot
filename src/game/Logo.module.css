@@ -14,7 +14,7 @@
 .large .mark {
   width: 80px;
   height: 73px;
-  filter: drop-shadow(0 0 18px rgba(0,214,107,0.35));
+  filter: drop-shadow(0 0 18px rgba(244,90,14,0.35));
 }
 
 .large .text {
@@ -37,7 +37,7 @@
 .small .mark {
   width: 26px;
   height: 24px;
-  filter: drop-shadow(0 0 6px rgba(0,214,107,0.4));
+  filter: drop-shadow(0 0 6px rgba(244,90,14,0.4));
 }
 
 .small .text {
@@ -58,7 +58,7 @@
 }
 
 .spot {
-  background: linear-gradient(135deg, #00d66b 0%, #4fc3f7 100%);
+  background: linear-gradient(135deg, #f45a0e 0%, #4fc3f7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

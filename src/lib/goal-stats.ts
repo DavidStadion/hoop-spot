@@ -22,8 +22,8 @@ export function computeGoalStats(goal: Goal): GoalStats {
   for (let i = 1; i < wps.length; i++) {
     const prev = wps[i - 1];
     const curr = wps[i];
-    const isShot = !!curr.isGoal;
-    const isDribble = !!curr.dribble;
+    const isShot = !!(curr.isBasket || curr.isGoal);
+    const isDribble = !!curr.dribble || curr.shotType === 'dribble';
 
     if (!isShot) {
       if (isDribble) carries++;

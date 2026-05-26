@@ -63,7 +63,7 @@ export function Game({ onQuit }: { onQuit: () => void }) {
             <path d="M6 6l12 12M6 18L18 6" />
           </svg>
         </button>
-        <span className={styles.wordmark}>Goal Spot</span>
+        <span className={styles.wordmark}>Hoop Spot</span>
         <div className={styles.headerActions}>
           <button
             className={styles.iconBtn}
@@ -91,7 +91,7 @@ export function Game({ onQuit }: { onQuit: () => void }) {
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </svg>
           </button>
-          <button className={styles.iconBtn} onClick={() => setMenuOpen(true)} aria-label="Browse all goals">
+          <button className={styles.iconBtn} onClick={() => setMenuOpen(true)} aria-label="Browse all hoops">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
               <path d="M4 7h16M4 12h16M4 17h16" />
             </svg>
@@ -100,7 +100,7 @@ export function Game({ onQuit }: { onQuit: () => void }) {
       </header>
 
       <div className={styles.progressBar}>
-        <span className={styles.roundCounter}>Goal {round} of {MAX_PIPS}</span>
+        <span className={styles.roundCounter}>Hoop {round} of {MAX_PIPS}</span>
         <div className={styles.scoreWrap}>
           {Array.from({ length: MAX_PIPS }).map((_, i) => {
             const played = i < roundResults.length;
@@ -176,8 +176,8 @@ export function Game({ onQuit }: { onQuit: () => void }) {
           </div>
         </div>
         <div className={styles.matchClock}>&#9201; {clock}</div>
-        {goal.meta.stadium && (
-          <div className={styles.matchStadium}>{goal.meta.stadium}</div>
+        {(goal.meta.arena || goal.meta.stadium) && (
+          <div className={styles.matchStadium}>{goal.meta.arena ?? goal.meta.stadium}</div>
         )}
       </div>
 

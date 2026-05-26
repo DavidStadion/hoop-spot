@@ -20,8 +20,8 @@ export function buildPoster(goal: Goal): HTMLCanvasElement {
 
   // Soft accent glow (top-left)
   const g1 = ctx.createRadialGradient(120, 80, 0, 120, 80, 700);
-  g1.addColorStop(0, 'rgba(0, 214, 107, 0.22)');
-  g1.addColorStop(1, 'rgba(0, 214, 107, 0)');
+  g1.addColorStop(0, 'rgba(244, 90, 14, 0.22)');
+  g1.addColorStop(1, 'rgba(244, 90, 14, 0)');
   ctx.fillStyle = g1;
   ctx.fillRect(0, 0, W, H);
 
@@ -30,7 +30,7 @@ export function buildPoster(goal: Goal): HTMLCanvasElement {
   ctx.font = '700 28px Inter, Arial, sans-serif';
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillText('GOAL SPOT', 80, 80);
+  ctx.fillText('HOOP SPOT', 80, 80);
 
   // Year/competition pill
   const compText = `${goal.meta.comp.toUpperCase()} · ${goal.meta.year}`;
@@ -40,12 +40,12 @@ export function buildPoster(goal: Goal): HTMLCanvasElement {
   const pillH = 52;
   const pillPad = 22;
   roundedRect(ctx, pillX, pillY, compW + pillPad * 2, pillH, 999);
-  ctx.fillStyle = 'rgba(0, 214, 107, 0.14)';
+  ctx.fillStyle = 'rgba(244, 90, 14, 0.14)';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(0, 214, 107, 0.4)';
+  ctx.strokeStyle = 'rgba(244, 90, 14, 0.4)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
-  ctx.fillStyle = '#00d66b';
+  ctx.fillStyle = '#f45a0e';
   ctx.fillText(compText, pillX + pillPad, pillY + 13);
 
   // Scorer name — huge
@@ -67,26 +67,26 @@ export function buildPoster(goal: Goal): HTMLCanvasElement {
   const matchLine = `${goal.meta.homeTeam} ${goal.meta.homeScore}–${goal.meta.awayScore} ${goal.meta.awayTeam}`;
   ctx.fillText(matchLine, 80, subY);
 
-  // Stadium + clock line
+  // Arena + clock line
   ctx.font = '600 24px Inter, Arial, sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  const stadiumPart = goal.meta.stadium ? `${goal.meta.stadium} · ` : '';
-  ctx.fillText(`${stadiumPart}${goal.meta.clock}`, 80, subY + 56);
+  const arenaName = goal.meta.arena ?? goal.meta.stadium;
+  const arenaPart = arenaName ? `${arenaName} · ` : '';
+  ctx.fillText(`${arenaPart}${goal.meta.clock}`, 80, subY + 56);
 
-  // ── Pitch section ──────────────────────────────────────────────
-  // Pitch coordinates in original game: x ∈ [-55,55], z ∈ [-30,30]
-  // Map to a pitch area on the poster.
-  const pitchPad = 80;
-  const pitchTop = subY + 56 + 100;
-  const pitchW = W - pitchPad * 2;          // 920
-  const pitchH = pitchW * (60 / 110);       // proportional, ~502
-  const pitchLeft = pitchPad;
+  // ── Court section ──────────────────────────────────────────────
+  // NBA court coords: x ∈ [-14.325, 14.325], z ∈ [-7.62, 7.62]
+  const courtPad = 80;
+  const courtTop = subY + 56 + 100;
+  const courtW = W - courtPad * 2;           // 920
+  const courtH = courtW * (15.24 / 28.65);   // proportional, ~489
+  const courtLeft = courtPad;
 
-  drawPitch(ctx, pitchLeft, pitchTop, pitchW, pitchH);
-  drawGoalPath(ctx, goal, pitchLeft, pitchTop, pitchW, pitchH);
+  drawCourt(ctx, courtLeft, courtTop, courtW, courtH);
+  drawPlayPath(ctx, goal, courtLeft, courtTop, courtW, courtH);
 
   // ── Footer ─────────────────────────────────────────────────────
-  const footY = pitchTop + pitchH + 100;
+  const footY = courtTop + courtH + 100;
   ctx.textAlign = 'left';
   ctx.font = '700 26px Inter, Arial, sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
@@ -96,10 +96,10 @@ export function buildPoster(goal: Goal): HTMLCanvasElement {
   ctx.font = '800 22px Inter, Arial, sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.35)';
   ctx.textBaseline = 'bottom';
-  ctx.fillText('GOAL SPOT', 80, H - 80);
+  ctx.fillText('HOOP SPOT', 80, H - 80);
 
   ctx.textAlign = 'right';
-  ctx.fillStyle = '#00d66b';
+  ctx.fillStyle = '#f45a0e';
   ctx.fillText('★ MOMENT REPLAYED', W - 80, H - 80);
 
   return canvas;
@@ -122,106 +122,140 @@ function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: num
   ctx.closePath();
 }
 
-function drawPitch(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
-  // Vertical stripes
-  const stripes = 18;
-  for (let i = 0; i < stripes; i++) {
-    ctx.fillStyle = i % 2 === 0 ? '#358a40' : '#54bd62';
-    ctx.fillRect(x + (i * w) / stripes, y, w / stripes + 1, h);
+function drawCourt(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
+  // NBA court — 28.65 × 15.24 m. Hoops at x = ±12.75.
+  const HALF_X = 14.325;
+  const HALF_Z = 7.62;
+  const px = (v: number) => x + ((v + HALF_X) / (HALF_X * 2)) * w;
+  const py = (v: number) => y + ((v + HALF_Z) / (HALF_Z * 2)) * h;
+  const pxScale = w / (HALF_X * 2);
+
+  // Wood parquet base
+  ctx.fillStyle = '#caa069';
+  ctx.fillRect(x, y, w, h);
+
+  // Vertical plank shading
+  const planks = 60;
+  for (let i = 0; i < planks; i++) {
+    ctx.globalAlpha = 0.32;
+    ctx.fillStyle = i % 2 === 0 ? '#a87f4a' : '#e0bb84';
+    ctx.fillRect(x + (i * w) / planks, y, w / planks + 1, h);
   }
+  ctx.globalAlpha = 1;
+
+  // Soft sheen
+  const sheen = ctx.createLinearGradient(0, y, 0, y + h);
+  sheen.addColorStop(0, 'rgba(255,240,210,0.10)');
+  sheen.addColorStop(0.5, 'rgba(255,240,210,0)');
+  sheen.addColorStop(1, 'rgba(0,0,0,0.12)');
+  ctx.fillStyle = sheen;
+  ctx.fillRect(x, y, w, h);
 
   // Markings
-  ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-  ctx.lineWidth = 4;
-  // Boundary
+  ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.lineWidth = 3.5;
   ctx.strokeRect(x, y, w, h);
-  // Centre line
+
+  // Half-court line
   ctx.beginPath();
   ctx.moveTo(x + w / 2, y);
   ctx.lineTo(x + w / 2, y + h);
   ctx.stroke();
-  // Centre circle
-  ctx.beginPath();
-  ctx.arc(x + w / 2, y + h / 2, (9.15 / 55) * (w / 2), 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(x + w / 2, y + h / 2, 5, 0, Math.PI * 2);
-  ctx.fill();
 
-  // Penalty / goal areas — right (attacking) side
-  const pxRight = x + w;
-  const py = (v: number) => y + ((v + 30) / 60) * h;
-  const px = (v: number) => x + ((v + 55) / 110) * w;
+  // Centre circle (radius 1.83 m)
+  ctx.beginPath();
+  ctx.arc(x + w / 2, y + h / 2, 1.83 * pxScale, 0, Math.PI * 2);
+  ctx.stroke();
 
-  // Right pen area
-  ctx.beginPath();
-  ctx.moveTo(pxRight, py(-20.16));
-  ctx.lineTo(px(33.5), py(-20.16));
-  ctx.lineTo(px(33.5), py(20.16));
-  ctx.lineTo(pxRight, py(20.16));
-  ctx.stroke();
-  // Right goal area
-  ctx.beginPath();
-  ctx.moveTo(pxRight, py(-9.16));
-  ctx.lineTo(px(49.5), py(-9.16));
-  ctx.lineTo(px(49.5), py(9.16));
-  ctx.lineTo(pxRight, py(9.16));
-  ctx.stroke();
-  // Pen spot
-  ctx.beginPath();
-  ctx.arc(px(44), py(0), 5, 0, Math.PI * 2);
-  ctx.fill();
+  // Per-end key/paint, free-throw circle, three-point line, restricted-area arc
+  const drawEnd = (side: 1 | -1) => {
+    const baselineX = side * HALF_X;
+    const ftLineX   = side * (HALF_X - 5.79);
+    const rimX      = side * (HALF_X - 1.575);
+    const paintHalfW = 2.44;
+    const ftR = 1.83;
+    const threeR = 7.24;
+    const cornerZ = 6.706;
+    const cornerX = side * (HALF_X - 4.27);
 
-  // Left pen area
-  ctx.beginPath();
-  ctx.moveTo(x, py(-20.16));
-  ctx.lineTo(px(-33.5), py(-20.16));
-  ctx.lineTo(px(-33.5), py(20.16));
-  ctx.lineTo(x, py(20.16));
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x, py(-9.16));
-  ctx.lineTo(px(-49.5), py(-9.16));
-  ctx.lineTo(px(-49.5), py(9.16));
-  ctx.lineTo(x, py(9.16));
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(px(-44), py(0), 5, 0, Math.PI * 2);
-  ctx.fill();
+    // Paint
+    ctx.beginPath();
+    ctx.moveTo(px(baselineX), py(-paintHalfW));
+    ctx.lineTo(px(ftLineX),   py(-paintHalfW));
+    ctx.lineTo(px(ftLineX),   py( paintHalfW));
+    ctx.lineTo(px(baselineX), py( paintHalfW));
+    ctx.stroke();
+
+    // Free-throw circle (solid)
+    ctx.beginPath();
+    ctx.arc(px(ftLineX), py(0), ftR * pxScale, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Three-point straight corner portions
+    ctx.beginPath();
+    ctx.moveTo(px(baselineX), py( cornerZ));
+    ctx.lineTo(px(cornerX),   py( cornerZ));
+    ctx.moveTo(px(baselineX), py(-cornerZ));
+    ctx.lineTo(px(cornerX),   py(-cornerZ));
+    ctx.stroke();
+
+    // Three-point arc
+    const dx = cornerX - rimX;
+    const theta = Math.atan2(cornerZ, dx);
+    ctx.beginPath();
+    if (side === 1) {
+      ctx.arc(px(rimX), py(0), threeR * pxScale, -theta + Math.PI, theta + Math.PI, false);
+    } else {
+      ctx.arc(px(rimX), py(0), threeR * pxScale, -theta, theta, false);
+    }
+    ctx.stroke();
+
+    // Rim marker
+    ctx.beginPath();
+    ctx.arc(px(rimX), py(0), 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff5a26';
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  };
+  drawEnd(1);
+  drawEnd(-1);
 }
 
-function drawGoalPath(
+function drawPlayPath(
   ctx: CanvasRenderingContext2D,
   goal: Goal,
   x: number, y: number, w: number, h: number,
 ) {
-  // Game pitch coords: x ∈ [-55, 55] (left→right), z ∈ [-30, 30] (top→bottom)
-  const px = (v: number) => x + ((v + 55) / 110) * w;
-  const py = (v: number) => y + ((v + 30) / 60) * h;
+  // NBA court coords: x ∈ [-14.325, 14.325], z ∈ [-7.62, 7.62]
+  const HALF_X = 14.325;
+  const HALF_Z = 7.62;
+  const px = (v: number) => x + ((v + HALF_X) / (HALF_X * 2)) * w;
+  const py = (v: number) => y + ((v + HALF_Z) / (HALF_Z * 2)) * h;
 
   const points = goal.buildup.map(wp => ({ ...wp, sx: px(wp.x), sy: py(wp.z) }));
 
-  // Draw segments — dashed for dribble, solid for pass
   for (let i = 1; i < points.length; i++) {
     const prev = points[i - 1];
     const curr = points[i];
+    const isDribble = curr.shotType === 'dribble' || curr.dribble;
+    const isBasket = !!(curr.isBasket || curr.isGoal);
     ctx.beginPath();
-    if (curr.dribble) {
+    if (isDribble) {
       ctx.setLineDash([10, 12]);
-      ctx.strokeStyle = '#00d66b';
+      ctx.strokeStyle = '#ff8a3d';        // orange for dribble (matches rim)
       ctx.lineWidth = 5;
     } else {
       ctx.setLineDash([]);
-      ctx.strokeStyle = curr.isGoal ? '#ffd54a' : '#ffffff';
+      ctx.strokeStyle = isBasket ? '#ffd54a' : '#ffffff';
       ctx.lineWidth = 6;
     }
     ctx.lineCap = 'round';
     ctx.moveTo(prev.sx, prev.sy);
-    // Slight curve for arc passes
-    if (!curr.dribble && curr.arc && curr.arc > 1.5) {
+    // Curve arcs for passes/shots — bigger lift for high-arc shots
+    if (!isDribble && curr.arc && curr.arc > 1.5) {
       const mx = (prev.sx + curr.sx) / 2;
-      const my = (prev.sy + curr.sy) / 2 - 24 * curr.arc;
+      const my = (prev.sy + curr.sy) / 2 - 14 * curr.arc;
       ctx.quadraticCurveTo(mx, my, curr.sx, curr.sy);
     } else {
       ctx.lineTo(curr.sx, curr.sy);
@@ -232,29 +266,27 @@ function drawGoalPath(
 
   // Numbered waypoint markers
   points.forEach((p, i) => {
-    const isGoal = !!p.isGoal;
-    const r = isGoal ? 28 : 22;
+    const isBasket = !!(p.isBasket || p.isGoal);
+    const r = isBasket ? 28 : 22;
     ctx.beginPath();
     ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
-    ctx.fillStyle = isGoal ? '#00d66b' : '#0d1826';
+    ctx.fillStyle = isBasket ? '#ff5a26' : '#0d1826';
     ctx.fill();
-    ctx.strokeStyle = isGoal ? '#00d66b' : '#ffffff';
+    ctx.strokeStyle = isBasket ? '#ff5a26' : '#ffffff';
     ctx.lineWidth = 4;
     ctx.stroke();
 
-    ctx.fillStyle = isGoal ? '#080f1a' : '#ffffff';
-    ctx.font = `900 ${isGoal ? 24 : 22}px Inter, Arial, sans-serif`;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `900 ${isBasket ? 24 : 22}px Inter, Arial, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(isGoal ? '⚽' : String(i + 1), p.sx, p.sy + 1);
+    ctx.fillText(isBasket ? '🏀' : String(i + 1), p.sx, p.sy + 1);
 
-    // Label
-    if (p.label && !isGoal) {
+    if (p.label && !isBasket) {
       ctx.font = '700 22px Inter, Arial, sans-serif';
       ctx.fillStyle = 'rgba(255,255,255,0.92)';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      // Offset label so it doesn't overlap the dot
       ctx.fillText(p.label, p.sx + r + 10, p.sy);
     }
   });
@@ -268,7 +300,7 @@ export function downloadPoster(goal: Goal): void {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `goal-spot-${goal.id}.png`;
+    a.download = `hoop-spot-${goal.id}.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

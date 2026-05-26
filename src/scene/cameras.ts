@@ -6,145 +6,136 @@ export type Shot = { pos: THREE.Vector3; look: THREE.Vector3 };
 const vec = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 
 export type DynamicShot = {
-  compute: (ball: THREE.Vector3, goalX: number) => Shot;
-  /** Camera position lerp speed per second */
+  compute: (ball: THREE.Vector3, hoopX: number) => Shot;
   posSpeed: number;
-  /** LookAt target lerp speed per second */
   lookSpeed: number;
 };
 
+// All positions tuned for a 28.65 × 15.24 m NBA court with hoops at x = ±12.75.
 export const DYNAMIC_SHOTS: Record<CameraShot, DynamicShot> = {
-  // Pulled back — slowly tracks the centre of the action
+  // Pulled back — broadcast wide showing both ends
   wide: {
-    compute: (ball, goalX) => {
-      const side = goalX > 0 ? 1 : -1;
-      const focusX = ball.x * 0.4 + goalX * 0.2;
+    compute: (ball, hoopX) => {
+      const side = hoopX > 0 ? 1 : -1;
+      const focusX = ball.x * 0.5 + hoopX * 0.15;
       return {
-        pos: vec(focusX - side * 8, 30, 65),
-        look: vec(ball.x + side * 12, 1, ball.z * 0.25),
+        pos: vec(focusX - side * 3, 9, 17),
+        look: vec(ball.x + side * 3, 1.5, ball.z * 0.3),
       };
     },
-    posSpeed: 1.2,
-    lookSpeed: 1.8,
+    posSpeed: 1.4,
+    lookSpeed: 2.0,
   },
 
-  // Low behind the ball — feel like the tracking camera chasing a run
+  // Courtside follow — chest height behind the carrier
   follow: {
-    compute: (ball, goalX) => {
-      const side = goalX > 0 ? 1 : -1;
+    compute: (ball, hoopX) => {
+      const side = hoopX > 0 ? 1 : -1;
       return {
-        pos: vec(ball.x - side * 22, 9, ball.z * 0.6 + 20),
-        look: vec(ball.x + side * 14, 2.5, ball.z * 0.4),
+        pos: vec(ball.x - side * 5.5, 3.4, ball.z * 0.5 + 6.5),
+        look: vec(ball.x + side * 4, 1.8, ball.z * 0.4),
       };
     },
-    posSpeed: 3.5,
-    lookSpeed: 5,
+    posSpeed: 4.0,
+    lookSpeed: 5.5,
   },
 
-  // Dribble chase — tight, low to the ground, glued behind the ball.
-  // Used when a single player is carrying the ball; the camera tracks
-  // the ball travelling on the floor rather than arcing through the air.
+  // Tight chase — knee height, glued to the dribbler
   dribble: {
-    compute: (ball, goalX) => {
-      const side = goalX > 0 ? 1 : -1;
+    compute: (ball, hoopX) => {
+      const side = hoopX > 0 ? 1 : -1;
       return {
-        // Lower & closer than 'follow' — runs along the ground with the ball
-        pos: vec(ball.x - side * 11, 3.6, ball.z + 9),
-        look: vec(ball.x + side * 9, 1.2, ball.z),
+        pos: vec(ball.x - side * 2.8, 1.6, ball.z + 2.6),
+        look: vec(ball.x + side * 2.4, 1.0, ball.z),
       };
     },
-    posSpeed: 5.5,   // snappier so the camera stays glued to the carrier
-    lookSpeed: 6.5,
+    posSpeed: 6.5,
+    lookSpeed: 7.5,
   },
 
-  // Low touchline camera — tracks ball's x, fixed depth
+  // Baseline courtside, tracking the ball's x with a fixed depth
   side: {
-    compute: (ball, goalX) => {
-      const side = goalX > 0 ? 1 : -1;
+    compute: (ball, hoopX) => {
+      const side = hoopX > 0 ? 1 : -1;
       return {
-        pos: vec(ball.x - side * 3, 5, 40),
-        look: vec(ball.x + side * 8, 2, ball.z * 0.3),
+        pos: vec(ball.x - side * 1.5, 1.9, 9.5),
+        look: vec(ball.x + side * 2.8, 1.6, ball.z * 0.3),
       };
     },
-    posSpeed: 4,
-    lookSpeed: 5,
+    posSpeed: 4.5,
+    lookSpeed: 5.5,
   },
 
-  // Elevated behind attacking goal, tracking ball on approach
-  'behind-goal': {
-    compute: (ball, goalX) => {
-      const side = goalX > 0 ? 1 : -1;
+  // Behind the baseline / behind the hoop — looks back across the court
+  baseline: {
+    compute: (ball, hoopX) => {
+      const side = hoopX > 0 ? 1 : -1;
       return {
-        pos: vec(goalX + side * 14, 10, ball.z * 0.25 + 24),
-        look: vec(ball.x, 3, ball.z * 0.5),
+        pos: vec(hoopX + side * 4.0, 3.6, ball.z * 0.3 + 5.5),
+        look: vec(ball.x, 2.4, ball.z * 0.4),
       };
     },
-    posSpeed: 2.5,
-    lookSpeed: 4,
+    posSpeed: 2.8,
+    lookSpeed: 4.0,
   },
 
-  // Low in front of goal — always shows ball coming IN to net
+  // Low courtside in front of the rim — ball flies INTO net toward camera
   close: {
-    compute: (ball, goalX) => {
-      const side = goalX > 0 ? 1 : -1;
+    compute: (ball, hoopX) => {
+      const side = hoopX > 0 ? 1 : -1;
       return {
-        pos: vec(goalX - side * 19, 3.5, 11),
-        look: vec(ball.x, ball.y + 0.5, ball.z),
+        pos: vec(hoopX - side * 5.5, 2.4, 4.5),
+        look: vec(ball.x, ball.y + 0.3, ball.z),
       };
     },
-    posSpeed: 5,
-    lookSpeed: 7,
+    posSpeed: 5.0,
+    lookSpeed: 7.0,
   },
 
-  // Goalkeeper POV — camera sits behind/just above the keeper looking out at
-  // the incoming ball. Ball flies AT the camera dramatically.
-  'keeper-pov': {
-    compute: (ball, goalX) => {
-      const side = goalX > 0 ? 1 : -1;
+  // Swish cam — just under the rim looking up at the ball coming through
+  'swish-cam': {
+    compute: (ball, hoopX) => {
+      const side = hoopX > 0 ? 1 : -1;
       return {
-        pos: vec(goalX + side * 1.6, 1.85, 0),       // just behind goal line, head height
-        look: vec(ball.x, ball.y + 0.2, ball.z),     // staring at the ball
+        pos: vec(hoopX + side * 0.55, 2.45, 0),         // tucked behind/under rim
+        look: vec(ball.x, ball.y + 0.15, ball.z),
       };
     },
-    posSpeed: 6,
-    lookSpeed: 8,
+    posSpeed: 6.0,
+    lookSpeed: 8.0,
   },
 
-  // Crowd-pan — after the goal, camera tilts up from the net to the back of
-  // the stand to sell the celebration before the birds-eye replay.
+  // Crowd-pan — courtside camera tilts up into the lower bowl
   'crowd-pan': {
-    compute: (_ball, goalX) => {
-      const side = goalX > 0 ? 1 : -1;
+    compute: (_ball, hoopX) => {
+      const side = hoopX > 0 ? 1 : -1;
       return {
-        pos: vec(goalX - side * 14, 8, 14),
-        look: vec(goalX + side * 80, 38, 0),         // way up & past the goal into the crowd
+        pos: vec(hoopX - side * 4.5, 3.2, 5.5),
+        look: vec(hoopX + side * 25, 14, 0),
       };
     },
-    posSpeed: 2.4,
-    lookSpeed: 2.4,
+    posSpeed: 2.6,
+    lookSpeed: 2.6,
   },
 
-  // Cable-cam — elevated rail running along the touchline, sweeping with play.
-  // Used for long tactical build-ups (Cambiasso, Champions League moves).
+  // Cable-cam — high mid-court sweep
   'cable-cam': {
     compute: (ball) => {
       return {
-        pos: vec(ball.x * 0.6, 22, 38),              // high, mid-pitch, follows x
-        look: vec(ball.x, 1.2, ball.z * 0.5),
+        pos: vec(ball.x * 0.5, 11, 12),
+        look: vec(ball.x, 1.4, ball.z * 0.4),
       };
     },
-    posSpeed: 2.2,
-    lookSpeed: 3.0,
+    posSpeed: 2.4,
+    lookSpeed: 3.2,
   },
 };
 
-// After goal: broadcast-style elevated side shot showing the entire pitch.
-// Camera is off the touchline, high enough to frame the full 110×60 pitch
-// in a landscape viewport (FOV 42). The trail of play is clearly visible.
-export function getBirdsEyeShot(_goalX: number): Shot {
+// After basket: broadcast elevated end-to-end shot showing the full court.
+export function getBirdsEyeShot(_hoopX: number): Shot {
   return {
-    pos: vec(0, 55, 78),
-    look: vec(8, 0, 0),
+    pos: vec(0, 18, 22),
+    look: vec(2, 0, 0),
   };
 }
 

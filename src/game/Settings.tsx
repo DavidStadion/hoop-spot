@@ -14,11 +14,11 @@ type Item = {
 };
 
 const ITEMS: Item[] = [
-  { key: 'audio',        label: 'Sound',                  description: 'Crowd ambient, ball kicks, kickoff whistle, goal roar.' },
-  { key: 'cinematic',    label: 'Cinematic goal moment',  description: 'Slow-mo on the strike + black letterbox bars top and bottom.' },
-  { key: 'goalStinger',  label: 'GOAL! text burst',       description: 'Huge "GOAL!" graphic that pops on the screen when the ball hits the net.' },
-  { key: 'weather',      label: 'Weather effects',        description: 'Rain on the wet-day goals (Beckham, Rooney, Ronaldinho, Bergkamp).' },
-  { key: 'lighting',     label: 'Stadium lighting',       description: 'Night / dusk / golden / overcast palettes per goal. Off = neutral daylight.' },
+  { key: 'audio',        label: 'Sound',                  description: 'Crowd ambient, shot release, tip-off whistle, crowd roar.' },
+  { key: 'cinematic',    label: 'Cinematic basket moment',description: 'Slow-mo on the shot + black letterbox bars top and bottom.' },
+  { key: 'goalStinger',  label: 'BUCKET! text burst',     description: 'Huge "BUCKET!" graphic that pops on the screen when the ball drops through.' },
+  { key: 'weather',      label: 'Weather effects',        description: 'Legacy outdoor-mode toggle. Indoor arenas keep skies clear.' },
+  { key: 'lighting',     label: 'Arena lighting',         description: 'Night / dusk / golden / overcast palettes per play. Off = neutral arena light.' },
   { key: 'whipPan',      label: 'Whip-pan transitions',   description: 'Camera swings between shots like a broadcast.' },
   { key: 'crowdFlashes', label: 'Crowd camera flashes',   description: 'Twinkling phone-camera flashes in the stands.' },
   { key: 'dribbleCam',   label: 'Dribble chase camera',   description: 'Tight low chase angle for single-player dribble waypoints.' },

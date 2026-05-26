@@ -68,9 +68,9 @@ export function PosterPreview({ goal, open, onClose }: Props) {
 
   return (
     <div className={styles.backdrop} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className={styles.sheet} role="dialog" aria-label="Goal poster preview">
+      <div className={styles.sheet} role="dialog" aria-label="Hoop poster preview">
         <div className={styles.head}>
-          <span className={styles.eyebrow}>Goal Poster</span>
+          <span className={styles.eyebrow}>Hoop Poster</span>
           <h3 className={styles.title}>{goal?.scorer}</h3>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
         </div>

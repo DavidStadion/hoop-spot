@@ -150,8 +150,69 @@ class Audio {
     osc.stop(now + 0.45); lfo.stop(now + 0.45);
   }
 
-  // ─── Goal roar ────────────────────────────────────────────────
-  goalRoar() {
+  // ─── Swish ────────────────────────────────────────────────────
+  // Short noise burst, band-passed and fast-decaying — net through the rim.
+  swish() {
+    if (!this.ctx || !this.master) return;
+    const now = this.ctx.currentTime;
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.35, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.9;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const bp = this.ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(5200, now);
+    bp.frequency.exponentialRampToValueAtTime(2200, now + 0.32);
+    bp.Q.value = 1.6;
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.32, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.33);
+    src.connect(bp).connect(gain).connect(this.master);
+    src.start(now);
+    src.stop(now + 0.36);
+  }
+
+  // ─── Pass — short hand-off click, gentler than a kick ─────────
+  pass() {
+    if (!this.ctx || !this.master) return;
+    const now = this.ctx.currentTime;
+    const cBuf = this.ctx.createBuffer(1, 512, this.ctx.sampleRate);
+    const cData = cBuf.getChannelData(0);
+    for (let i = 0; i < cData.length; i++) cData[i] = (Math.random() * 2 - 1) * Math.exp(-i / 90);
+    const click = this.ctx.createBufferSource();
+    click.buffer = cBuf;
+    const f = this.ctx.createBiquadFilter();
+    f.type = 'bandpass'; f.frequency.value = 1100; f.Q.value = 0.8;
+    const g = this.ctx.createGain();
+    g.gain.value = 0.12;
+    click.connect(f).connect(g).connect(this.master);
+    click.start(now);
+  }
+
+  // ─── Dribble bounce — short low thud ──────────────────────────
+  bounce() {
+    if (!this.ctx || !this.master) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(120, now);
+    osc.frequency.exponentialRampToValueAtTime(60, now + 0.08);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.18, now + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    osc.connect(g).connect(this.master);
+    osc.start(now);
+    osc.stop(now + 0.12);
+  }
+
+  /** Alias for backward compat — calls the basket roar. */
+  goalRoar() { this.basketRoar(); }
+
+  // ─── Basket roar ──────────────────────────────────────────────
+  basketRoar() {
     if (!this.ctx || !this.master) return;
     const now = this.ctx.currentTime;
     // Cheer: white noise with rising lowpass sweep, long release

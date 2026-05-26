@@ -51,13 +51,13 @@ export function SceneCanvas() {
       scene.freezeTrail();
       setPhase('guessing');
     });
-    scene.animator.on('goal-scored', ({ x, z }) => {
+    scene.animator.on('basket-scored', ({ x, z }) => {
       scene.triggerShake(620, 0.65);
       scene.triggerGoalBurst(x, z);
     });
     scene.animator.on('cinematic-start', () => setCinematic(true));
     scene.animator.on('cinematic-end',   () => setCinematic(false));
-    scene.animator.on('goal-stinger',    () => triggerGoalStinger());
+    scene.animator.on('basket-stinger',  () => triggerGoalStinger());
   }, [goal]);
 
   useEffect(() => {
@@ -133,7 +133,7 @@ export function SceneCanvas() {
       const positions: LabelPos[] = goal.buildup.map((wp, idx) => {
         const v = new THREE.Vector3(wp.x, 0, wp.z);
         v.project(scene.camera);
-        return { label: wp.label, x: (v.x + 1) / 2 * w, y: (-v.y + 1) / 2 * h, isGoal: wp.isGoal ?? false, idx };
+        return { label: wp.label, x: (v.x + 1) / 2 * w, y: (-v.y + 1) / 2 * h, isGoal: !!(wp.isBasket || wp.isGoal), idx };
       });
       setWpLabels(positions);
       projRafRef.current = requestAnimationFrame(project);

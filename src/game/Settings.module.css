@@ -143,13 +143,13 @@
   transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
 }
 .switchInput:checked + .switchTrack {
-  background: #00d66b;
+  background: #f45a0e;
 }
 .switchInput:checked + .switchTrack .switchThumb {
   transform: translateX(18px);
 }
 .switchInput:focus-visible + .switchTrack {
-  box-shadow: 0 0 0 2px rgba(0, 214, 107, 0.4);
+  box-shadow: 0 0 0 2px rgba(244, 90, 14, 0.4);
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────── */

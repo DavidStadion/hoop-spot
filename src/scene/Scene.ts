@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { buildPitch } from './pitch';
+import { buildCourt } from './court';
 import { buildStadium } from './stadium';
-import { buildGoal } from './goal';
+import { buildHoop } from './hoop';
+import { HOOP_X } from './animator';
 import { Ball } from './ball';
 import { Trail } from './trail';
 import { Animator } from './animator';
@@ -78,7 +79,7 @@ export class Scene {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     this.camera = new THREE.PerspectiveCamera(42, 1, 0.5, 500);
-    this.camera.position.set(0, 42, 88);
+    this.camera.position.set(0, 14, 28);
     this.camera.lookAt(0, 0, 0);
 
     this.threeScene = new THREE.Scene();
@@ -252,7 +253,7 @@ export class Scene {
 
   refreshPitch() {
     // Pick a new variant that isn't the same as last time
-    const VARIANTS = 6;
+    const VARIANTS = 4;
     let variant = Math.floor(Math.random() * VARIANTS);
     if (this.lastPitchVariant >= 0 && variant === this.lastPitchVariant) {
       variant = (variant + 1) % VARIANTS;
@@ -266,7 +267,7 @@ export class Scene {
       mat.map?.dispose();
       mat.dispose();
     }
-    this.pitchMesh = buildPitch(variant);
+    this.pitchMesh = buildCourt(variant);
     this.threeScene.add(this.pitchMesh);
   }
 
@@ -279,7 +280,7 @@ export class Scene {
     const count = 90;
     const positions = new Float32Array(count * 3);
     const velocities = new Float32Array(count * 3);
-    const colors = [0x00d66b, 0xffffff, 0xffd700, 0x4fc3f7];
+    const colors = [0xf45a0e, 0xffffff, 0xffb060, 0xff8a3d];
 
     for (let i = 0; i < count; i++) {
       positions[i * 3]     = x + (Math.random() - 0.5) * 4;
@@ -341,11 +342,11 @@ export class Scene {
     const dust = new THREE.Points(this.dustGeo, this.dustMat);
     dust.frustumCulled = false;
     s.add(dust);
-    const goalHandles = new Map([
-      [ 55, buildGoal(s,  55)],
-      [-55, buildGoal(s, -55)],
+    const hoopHandles = new Map([
+      [ HOOP_X, buildHoop(s,  HOOP_X)],
+      [-HOOP_X, buildHoop(s, -HOOP_X)],
     ]);
-    this.animator = new Animator(this.ball, goalHandles, this.trail);
+    this.animator = new Animator(this.ball, hoopHandles, this.trail);
 
     // Crowd camera-flash overlay
     const flashCanvas = document.createElement('canvas');

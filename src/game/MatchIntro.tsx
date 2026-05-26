@@ -53,7 +53,7 @@ export function MatchIntro() {
 
   return (
     <div className={`${styles.overlay} ${leaving ? styles.leaving : ''}`}>
-      <p className={styles.roundLabel}>Goal {queueIdx + 1} of {ROUND_SIZE}</p>
+      <p className={styles.roundLabel}>Hoop {queueIdx + 1} of {ROUND_SIZE}</p>
 
       {compLogo ? (
         <img src={compLogo} alt={comp} className={styles.compLogo} />
