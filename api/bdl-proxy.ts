@@ -1,15 +1,5 @@
-// Vercel serverless function — proxies requests to api.balldontlie.io with the
-// secret API key injected from BDL_API_KEY (set in Vercel env vars).
-//
-// Why a proxy?
-//  - Keeps the API key out of the client bundle.
-//  - Lets the browser call same-origin /api/bdl/* without CORS hassle.
-//
-// Usage from the client:
-//   fetch('/api/bdl/teams')             → forwards to GET v1/teams
-//   fetch('/api/bdl/players?per_page=5') → forwards with query string preserved
-//
-// Catch-all routing: any path after /api/bdl/ becomes the upstream path.
+// Single Vercel function that proxies BallDontLie requests.
+// Routed via vercel.json: /api/bdl/<anything> → /api/bdl-proxy?path=<anything>
 
 export const config = { runtime: 'nodejs' };
 
@@ -27,12 +17,9 @@ type VercelResponse = {
 
 const BASE = 'https://api.balldontlie.io/v1';
 
-// Cache successful responses in memory for the lifetime of the function
-// container (Fluid Compute keeps instances warm). Cuts BDL quota burn for
-// repeated team/roster lookups within a session.
 type CacheEntry = { ts: number; body: unknown };
 const cache = new Map<string, CacheEntry>();
-const CACHE_TTL_MS = 5 * 60 * 1000;          // 5 min
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const apiKey = process.env.BDL_API_KEY;
@@ -44,21 +31,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  // Derive the upstream path directly from req.url so this works regardless
-  // of how Vercel populates the catch-all params. Strip the /api/bdl/ prefix.
-  const reqUrl = req.url ?? '/';
-  const url = new URL(reqUrl, 'http://localhost');
-  const pathname = url.pathname.replace(/^\/api\/bdl\/?/, '');
-  if (!pathname) {
+  // The rewrite passes the rest of the URL via the `path` query param.
+  const rawPath = req.query.path;
+  const path = Array.isArray(rawPath) ? rawPath.join('/') : (rawPath ?? '');
+  if (!path) {
     res.status(400).json({ error: 'Missing path' });
     return;
   }
-  // Drop the synthetic `path` param Vercel injects for catch-all routes.
-  url.searchParams.delete('path');
-  const upstream = `${BASE}/${pathname}${url.search}`;
 
-  const cacheKey = upstream;
-  const hit = cache.get(cacheKey);
+  // Forward every other query param to BDL.
+  const url = new URL(req.url ?? '/', 'http://localhost');
+  url.searchParams.delete('path');
+  const upstream = `${BASE}/${path}${url.search}`;
+
+  const hit = cache.get(upstream);
   if (hit && Date.now() - hit.ts < CACHE_TTL_MS) {
     res.setHeader('x-bdl-cache', 'hit');
     res.json(hit.body);
@@ -70,15 +56,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       headers: { Authorization: apiKey },
     });
     const body = await upstreamRes.json();
-
     if (!upstreamRes.ok) {
       res.status(upstreamRes.status).json(body);
       return;
     }
-
-    cache.set(cacheKey, { ts: Date.now(), body });
+    cache.set(upstream, { ts: Date.now(), body });
     res.setHeader('x-bdl-cache', 'miss');
-    // 60s browser/CDN cache — same data tier as our in-memory cache TTL.
     res.setHeader('cache-control', 'public, max-age=60, s-maxage=300');
     res.json(body);
   } catch (err) {
