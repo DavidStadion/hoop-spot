@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { Game } from './game/Game';
 import { Splash } from './game/Splash';
 import { HowToPlay, shouldSkipHowToPlay } from './game/HowToPlay';
+import { TeamMode } from './game/TeamMode';
 import { useGameStore } from './store/gameStore';
 import { useSettingsStore } from './store/settingsStore';
 import { audio } from './lib/audio';
 
-type Screen = 'splash' | 'howto' | 'game';
+type Screen = 'splash' | 'howto' | 'game' | 'teams';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('splash');
@@ -24,6 +25,10 @@ export default function App() {
     }, 480);
   }
 
+  function handlePickTeam() {
+    setScreen('teams');
+  }
+
   function handleHowToClose() {
     setScreen('game');
   }
@@ -34,7 +39,8 @@ export default function App() {
     resetRound();
   }
 
-  if (screen === 'splash') return <Splash onStart={handleStart} exiting={exiting} />;
+  if (screen === 'splash') return <Splash onStart={handleStart} onPickTeam={handlePickTeam} exiting={exiting} />;
   if (screen === 'howto')  return <HowToPlay onClose={handleHowToClose} />;
+  if (screen === 'teams')  return <TeamMode onBack={() => setScreen('splash')} />;
   return <Game onQuit={handleQuit} />;
 }
