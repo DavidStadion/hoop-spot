@@ -44,21 +44,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  // Derive the upstream path. Vercel passes the catch-all segments via
-  // req.query.path (array of strings). Anything else in the query string is
-  // forwarded as-is.
-  const pathParts = req.query.path;
-  if (!pathParts) {
+  // Derive the upstream path directly from req.url so this works regardless
+  // of how Vercel populates the catch-all params. Strip the /api/bdl/ prefix.
+  const reqUrl = req.url ?? '/';
+  const url = new URL(reqUrl, 'http://localhost');
+  const pathname = url.pathname.replace(/^\/api\/bdl\/?/, '');
+  if (!pathname) {
     res.status(400).json({ error: 'Missing path' });
     return;
   }
-  const path = Array.isArray(pathParts) ? pathParts.join('/') : pathParts;
-
-  // Rebuild the query string from req.url so things like `?per_page=10&team_ids[]=1`
-  // survive intact. Drop the `path` synthetic param Vercel injected.
-  const url = new URL(req.url ?? '/', 'http://localhost');
+  // Drop the synthetic `path` param Vercel injects for catch-all routes.
   url.searchParams.delete('path');
-  const upstream = `${BASE}/${path}${url.search}`;
+  const upstream = `${BASE}/${pathname}${url.search}`;
 
   const cacheKey = upstream;
   const hit = cache.get(cacheKey);
