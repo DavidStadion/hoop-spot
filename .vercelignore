@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.DS_Store
+.claude
+files
+files.zip
+tsconfig.tsbuildinfo
+*.log

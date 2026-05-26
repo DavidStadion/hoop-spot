@@ -1,0 +1,193 @@
+.shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #080f1a;
+  color: #fff;
+  overflow: hidden;
+  animation: shellIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes shellIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Soft background glows so it doesn't feel like a plain modal */
+.glow1, .glow2 {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+.glow1 {
+  width: 320px;
+  height: 320px;
+  background: rgba(0, 214, 107, 0.18);
+  top: -100px;
+  left: -60px;
+}
+.glow2 {
+  width: 280px;
+  height: 280px;
+  background: rgba(79, 195, 247, 0.14);
+  bottom: -80px;
+  right: -50px;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 56px 28px 32px;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin: 0 0 8px;
+  line-height: 1;
+}
+
+.subtitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.55);
+  margin: 0 0 36px;
+  letter-spacing: -0.1px;
+}
+
+/* ─── Steps ───────────────────────────────────────────────────── */
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  animation: stepIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.step:nth-child(1) { animation-delay: 80ms; }
+.step:nth-child(2) { animation-delay: 160ms; }
+.step:nth-child(3) { animation-delay: 240ms; }
+.step:nth-child(4) { animation-delay: 320ms; }
+
+@keyframes stepIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.stepIcon {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(0, 214, 107, 0.12);
+  border: 1px solid rgba(0, 214, 107, 0.25);
+  color: #00d66b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 2px;
+}
+.stepText strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+.stepText span {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.45;
+  letter-spacing: -0.05px;
+}
+
+/* ─── "Don't show again" ──────────────────────────────────────── */
+.skipRow {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 2px 16px;
+  cursor: pointer;
+  user-select: none;
+  animation: ctaIn 0.5s 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.skipCheckbox {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.skipBox {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.skipCheckbox:checked + .skipBox {
+  background: #00d66b;
+  border-color: #00d66b;
+  color: #080f1a;
+}
+
+.skipLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: -0.1px;
+}
+
+.skipRow:hover .skipLabel { color: rgba(255,255,255,0.85); }
+
+/* ─── CTA ─────────────────────────────────────────────────────── */
+.cta {
+  background: #ffffff;
+  color: #080f1a;
+  font-size: 16px;
+  font-weight: 800;
+  padding: 16px 22px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  font-family: var(--font-sans);
+  transition: transform 0.08s, opacity 0.15s;
+  animation: ctaIn 0.5s 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.cta:hover { opacity: 0.9; }
+.cta:active { transform: scale(0.97); }
+
+@keyframes ctaIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

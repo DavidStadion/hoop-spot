@@ -1,0 +1,154 @@
+/* ─── Shell ─────────────────────────────────────────────────────── */
+.shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #080f1a;
+  overflow: hidden;
+  color: #ffffff;
+}
+
+/* ─── Exit transition ────────────────────────────────────────────── */
+.exiting {
+  animation: splashExit 0.48s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes splashExit {
+  0%   { opacity: 1; transform: scale(1); }
+  60%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 0; transform: scale(1.08); }
+}
+
+/* ─── Animated background glows ─────────────────────────────────── */
+.glow1 {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,214,107,0.13) 0%, transparent 70%);
+  top: -80px;
+  left: -100px;
+  animation: drift1 9s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.glow2 {
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,195,247,0.10) 0%, transparent 70%);
+  bottom: 80px;
+  right: -80px;
+  animation: drift2 11s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes drift1 {
+  0%, 100% { transform: translate(0, 0); }
+  50%       { transform: translate(40px, 30px); }
+}
+
+@keyframes drift2 {
+  0%, 100% { transform: translate(0, 0); }
+  50%       { transform: translate(-30px, -20px); }
+}
+
+/* ─── Content ────────────────────────────────────────────────────── */
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 40px;
+}
+
+/* ─── Name ───────────────────────────────────────────────────────── */
+.name {
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+  margin: 0;
+}
+
+/* ─── Button stack ─────────────────────────────────────────────── */
+.btnStack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 280px;
+}
+
+/* ─── Action buttons (shared base) ──────────────────────────────── */
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 28px;
+  border-radius: 999px;          /* fully pill-shaped */
+  cursor: pointer;
+  font-family: var(--font-sans);
+  border: 1.5px solid transparent;
+  transition: background 0.15s, border-color 0.15s, transform 0.08s, opacity 0.15s;
+  width: 100%;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.1px;
+  line-height: 1;
+}
+.actionBtn:active { transform: scale(0.98); }
+
+/* ─── Primary — solid white ─────────────────────────────────────── */
+.actionBtn.primary {
+  background: #ffffff;
+  color: #080f1a;
+  border-color: #ffffff;
+  box-shadow: 0 8px 24px rgba(255,255,255,0.08);
+}
+.actionBtn.primary:hover { opacity: 0.92; }
+
+/* ─── Outline — stroked, transparent ────────────────────────────── */
+.actionBtn.outline {
+  background: transparent;
+  border-color: rgba(255,255,255,0.5);
+  color: #ffffff;
+}
+.actionBtn.outline:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: #ffffff;
+}
+
+/* ─── Ghost — lowest contrast, dashed accent ────────────────────── */
+.actionBtn.ghost {
+  background: rgba(0, 214, 107, 0.04);
+  border-color: rgba(0, 214, 107, 0.4);
+  border-style: dashed;
+  color: #00d66b;
+}
+.actionBtn.ghost:hover {
+  background: rgba(0, 214, 107, 0.08);
+  border-color: rgba(0, 214, 107, 0.7);
+}
+
+/* ─── Credit ─────────────────────────────────────────────────────── */
+.credit {
+  position: absolute;
+  bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  z-index: 1;
+}

@@ -1,0 +1,70 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+/* ─── Large (splash) ─────────────────────────────────────────────── */
+.large {
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.large .mark {
+  width: 80px;
+  height: 73px;
+  filter: drop-shadow(0 0 18px rgba(0,214,107,0.35));
+}
+
+.large .text {
+  font-size: 80px;
+  font-weight: 900;
+  letter-spacing: -4px;
+  line-height: 0.88;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── Small (header) ─────────────────────────────────────────────── */
+.small {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.small .mark {
+  width: 26px;
+  height: 24px;
+  filter: drop-shadow(0 0 6px rgba(0,214,107,0.4));
+}
+
+.small .text {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+/* ─── Text colours ───────────────────────────────────────────────── */
+.goal {
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.72) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.spot {
+  background: linear-gradient(135deg, #00d66b 0%, #4fc3f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.space {
+  display: inline-block;
+  width: 0.22em;
+}

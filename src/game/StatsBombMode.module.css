@@ -1,0 +1,348 @@
+.shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #080f1a;
+  color: #fff;
+  overflow: hidden;
+  animation: shellIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes shellIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.glow1, .glow2 {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+.glow1 { width: 280px; height: 280px; background: rgba(255, 175, 20, 0.16); top: -80px; right: -60px; }
+.glow2 { width: 240px; height: 240px; background: rgba(0, 214, 107, 0.10); bottom: -60px; left: -50px; }
+
+/* ─── Header ────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: max(20px, env(safe-area-inset-top, 0px)) 18px 10px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  z-index: 1;
+}
+.backBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.08s;
+}
+.backBtn:hover { background: rgba(255,255,255,0.14); }
+.backBtn:active { transform: scale(0.94); }
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.eyebrow {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffaf14;
+}
+.title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+.subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.55);
+}
+
+/* ─── Body ──────────────────────────────────────────────────── */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  z-index: 1;
+}
+.list {
+  padding: 4px 0 24px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  text-align: left;
+  transition: background 0.1s;
+}
+.row:hover  { background: rgba(255,255,255,0.05); }
+.row:active { background: rgba(255,255,255,0.1); }
+
+.rowMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.rowMain strong {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.1px;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rowSub {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+}
+.score {
+  display: inline-block;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  padding: 0 4px;
+  color: rgba(255,255,255,0.95);
+}
+.arrow {
+  font-size: 18px;
+  color: rgba(255,255,255,0.25);
+  flex-shrink: 0;
+}
+
+/* ─── Crest / logo elements ─────────────────────────────────── */
+.compLogo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.compLogoPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.teamCrest {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+}
+.teamCrestPlaceholder {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.7);
+}
+
+/* ─── Match-row layout (with crests on each side) ───────────── */
+.matchTeams {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.matchTeamsBody {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.1px;
+}
+.matchTeamsBody strong {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.matchTeamsBody strong:last-child { text-align: right; }
+.matchCol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.matchMeta {
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.02em;
+  margin-left: 36px;
+}
+
+/* ─── Goals list ────────────────────────────────────────────── */
+.goalNum {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 175, 20, 0.12);
+  border: 1px solid rgba(255, 175, 20, 0.4);
+  color: #ffaf14;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.goalRowTitle {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.mystery {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Show crest inline in the goal-row metadata line */
+.rowSub .teamCrest {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* ─── States ────────────────────────────────────────────────── */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 18px;
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+  font-weight: 600;
+}
+.spinner {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.12);
+  border-top-color: #ffaf14;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error {
+  margin: 18px;
+  padding: 12px 14px;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.35);
+  border-radius: 10px;
+  color: #f4806f;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.empty {
+  padding: 60px 18px;
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 13px;
+}
+
+/* ─── Club grid (Pick-your-club mode) ───────────────────────────── */
+.clubGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px 12px 24px;
+}
+
+.clubCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 10px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: background 0.15s, border-color 0.15s, transform 0.08s;
+  min-height: 130px;
+}
+.clubCard:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(0, 214, 107, 0.4);
+}
+.clubCard:active { transform: scale(0.98); }
+
+.clubCard .teamCrest,
+.clubCard .teamCrestPlaceholder {
+  width: 48px;
+  height: 48px;
+}
+.clubCard .teamCrestPlaceholder { font-size: 18px; }
+
+.clubName {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.1px;
+  color: #fff;
+  text-align: center;
+  line-height: 1.25;
+}
+.clubMatches {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}

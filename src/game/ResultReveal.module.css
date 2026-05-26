@@ -1,0 +1,281 @@
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 90;
+  animation: fadeIn 0.25s ease both;
+}
+
+.sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 91;
+  background: #0d1826;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  border-radius: 22px 22px 0 0;
+  padding: 18px 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 -18px 50px rgba(0,0,0,0.6);
+  animation: slideUp 0.38s cubic-bezier(0.32, 0.72, 0, 1) both;
+  max-height: 80dvh;
+  overflow-y: auto;
+}
+
+.sheetCorrect {
+  border-top: 2px solid rgba(0, 214, 107, 0.55);
+}
+.sheetWrong {
+  border-top: 2px solid rgba(244, 67, 54, 0.5);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); } to { transform: translateY(0); }
+}
+
+/* ─── Verdict row ───────────────────────────────────────────────── */
+.verdictRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.iconCorrect {
+  background: rgba(0, 214, 107, 0.16);
+  color: #00d66b;
+  box-shadow: 0 0 24px rgba(0, 214, 107, 0.3);
+}
+.iconWrong {
+  background: rgba(244, 67, 54, 0.16);
+  color: #f44336;
+}
+
+.verdictText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.verdict {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  line-height: 1.05;
+}
+.verdictCorrect { color: #00d66b; }
+.verdictWrong   { color: #f44336; }
+.verdictSub {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: -0.05px;
+}
+
+/* xG drama pill */
+.xgPill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  background: rgba(0, 214, 107, 0.14);
+  border: 1px solid rgba(0, 214, 107, 0.4);
+  padding: 6px 10px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #00d66b;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.xgValue {
+  font-size: 11px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+}
+
+/* ─── Scorer card ──────────────────────────────────────────────── */
+.scorerCard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+}
+.scorerEyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+.scorerName {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+  line-height: 1.1;
+}
+.assisterLine {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.78);
+}
+.assistLabel {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.06);
+  padding: 3px 6px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+/* ─── Stat strip ───────────────────────────────────────────────── */
+.statStrip {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+.statBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 4px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+}
+.statValue {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+.statUnit {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.45);
+  margin-left: 1px;
+}
+.statLabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
+
+/* ─── Fact ─────────────────────────────────────────────────────── */
+.fact {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.5;
+  margin: 0;
+  padding: 0 4px;
+  letter-spacing: -0.05px;
+}
+
+/* ─── Action chip row ──────────────────────────────────────────── */
+.chipRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chipBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.08s;
+  letter-spacing: 0.01em;
+}
+.chipBtn:active { transform: scale(0.97); }
+
+/* Save chip — yellow */
+.saveChip {
+  background: rgba(255, 215, 64, 0.08);
+  border: 1px solid rgba(255, 215, 64, 0.4);
+  color: #ffd740;
+}
+.saveChip:hover {
+  background: rgba(255, 215, 64, 0.14);
+  border-color: rgba(255, 215, 64, 0.65);
+}
+.saveChip.saved {
+  background: rgba(255, 215, 64, 0.2);
+  border-color: rgba(255, 215, 64, 0.75);
+  color: #ffea80;
+}
+
+/* Poster chip — green/blue gradient */
+.posterChip {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(0, 214, 107, 0.14), rgba(79, 195, 247, 0.10));
+  border: 1px solid rgba(0, 214, 107, 0.4);
+  color: #ffffff;
+}
+.posterChip:hover {
+  border-color: rgba(0, 214, 107, 0.65);
+  background: linear-gradient(135deg, rgba(0, 214, 107, 0.22), rgba(79, 195, 247, 0.16));
+}
+
+/* ─── Next button (primary CTA) ────────────────────────────────── */
+.nextBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #ffffff;
+  color: #080f1a;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 14px 22px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  letter-spacing: 0.01em;
+  transition: transform 0.08s, opacity 0.15s;
+  margin-top: 4px;
+  box-shadow: 0 6px 20px rgba(255,255,255,0.08);
+}
+.nextBtn:hover  { opacity: 0.92; }
+.nextBtn:active { transform: scale(0.98); }

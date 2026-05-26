@@ -1,0 +1,117 @@
+/* ─── Letterbox bars ────────────────────────────────────────────── */
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 14%;
+  background: #000;
+  pointer-events: none;
+  z-index: 25;
+  transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.barTop {
+  top: 0;
+  transform: translateY(-100%);
+}
+
+.barBottom {
+  bottom: 0;
+  transform: translateY(100%);
+}
+
+.barIn.barTop    { transform: translateY(0); }
+.barIn.barBottom { transform: translateY(0); }
+
+/* ─── Goal stinger ──────────────────────────────────────────────── */
+.stinger {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  pointer-events: none;
+  z-index: 26;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.stingerText {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 22vw;
+  letter-spacing: -1px;
+  line-height: 0.85;
+  color: #ffffff;
+  text-shadow:
+    0 0 28px rgba(0, 214, 107, 0.85),
+    0 0 60px rgba(0, 214, 107, 0.55),
+    0 4px 24px rgba(0, 0, 0, 0.7);
+  animation: stingerIn 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (min-width: 480px) {
+  .stingerText { font-size: 110px; }
+}
+
+@keyframes stingerIn {
+  0%   { opacity: 0; transform: scale(2.6) rotate(-3deg); filter: blur(8px); }
+  18%  { opacity: 1; transform: scale(1.0) rotate(0deg);  filter: blur(0); }
+  68%  { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(1.12) translateY(-12px); }
+}
+
+/* ─── xG drama tag ──────────────────────────────────────────────── */
+.stingerTag {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #00d66b;
+  background: rgba(0, 214, 107, 0.16);
+  border: 1px solid rgba(0, 214, 107, 0.45);
+  padding: 6px 12px;
+  border-radius: 999px;
+  animation: chipIn 1.5s 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.stingerXg {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.06em;
+}
+
+/* ─── Stat chip ─────────────────────────────────────────────────── */
+.statChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(8, 15, 26, 0.78);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 8px 14px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  animation: chipIn 1.5s 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.statItem strong {
+  font-weight: 900;
+  color: #ffffff;
+  margin-right: 2px;
+}
+.statDivider {
+  color: rgba(255,255,255,0.3);
+}
+
+@keyframes chipIn {
+  0%   { opacity: 0; transform: translateY(14px) scale(0.85); }
+  20%  { opacity: 1; transform: translateY(0) scale(1.0); }
+  78%  { opacity: 1; transform: translateY(0) scale(1.0); }
+  100% { opacity: 0; transform: translateY(-8px) scale(1.0); }
+}

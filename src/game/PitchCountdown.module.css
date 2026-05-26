@@ -1,0 +1,27 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 15, 26, 0.45);
+  backdrop-filter: blur(1px);
+}
+
+.num {
+  font-size: 96px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -4px;
+  line-height: 1;
+  text-shadow: 0 0 40px rgba(0,214,107,0.5), 0 4px 24px rgba(0,0,0,0.6);
+  animation: numPop 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes numPop {
+  0%   { opacity: 0; transform: scale(1.5); }
+  20%  { opacity: 1; transform: scale(1.0); }
+  75%  { opacity: 1; transform: scale(1.0); }
+  100% { opacity: 0; transform: scale(0.7); }
+}
